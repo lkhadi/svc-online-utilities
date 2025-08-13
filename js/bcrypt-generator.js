@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(function() {
             try {
                 // Generate bcrypt hash using the browser-compatible library
-                const hash = bcrypt.hashSync(password, rounds);
+                const hash = dcodeIO.bcrypt.hashSync(password, rounds);
                 
                 // Display the hash
                 hashResult.textContent = hash;
