@@ -28,11 +28,11 @@ spec:
                 name: db-secret
           resources:
             requests:
-              cpu: "50m"
+              cpu: "10m"
               memory: "28Mi"
             limits:
-              cpu: "100m"
-              memory: "648Mi"
+              cpu: "20m"
+              memory: "56Mi"
 
 ---
 apiVersion: v1
