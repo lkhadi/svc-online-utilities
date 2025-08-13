@@ -15,7 +15,7 @@ RUN adduser -D -H -u 1000 webuser && \
 
 # Copy application files to nginx html directory
 COPY --chown=webuser:webuser index.html /usr/share/nginx/html/
-COPY --chown=webuser:webuser uuid-generator.html /usr/share/nginx/html/
+COPY --chown=webuser:webuser uuidv7-generator.html /usr/share/nginx/html/
 COPY --chown=webuser:webuser css/ /usr/share/nginx/html/css/
 COPY --chown=webuser:webuser js/ /usr/share/nginx/html/js/
 
