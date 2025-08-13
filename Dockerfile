@@ -9,6 +9,7 @@ LABEL description="Online Utilities including"
 # Copy application files to nginx html directory
 COPY index.html /usr/share/nginx/html/
 COPY uuidv7-generator.html /usr/share/nginx/html/
+COPY bcrypt-generator.html /usr/share/nginx/html/
 COPY css/ /usr/share/nginx/html/css/
 COPY js/ /usr/share/nginx/html/js/
 

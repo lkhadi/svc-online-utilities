@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bcrypt Generator - Web Utilities</title>
+    <link rel="stylesheet" href="/online-utilities/css/common.css">
+    <link rel="stylesheet" href="/online-utilities/css/bcrypt-generator.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Bcrypt Password Generator</h1>
+            <p class="description">Generate secure bcrypt password hashes</p>
+        </header>
+
+        <nav class="main-nav">
+            <ul>
+                <li><a href="/online-utilities/index.html" class="home-link">Home</a></li>
+                <li><a href="/online-utilities/uuid-generator.html" class="utility-link">UUID v7 Generator</a></li>
+                <li><a href="/online-utilities/bcrypt-generator.html" class="utility-link active">Bcrypt Generator</a></li>
+                <li><a href="#" class="utility-link disabled">Future Utility 1</a></li>
+                <li><a href="#" class="utility-link disabled">Future Utility 2</a></li>
+            </ul>
+        </nav>
+
+        <main>
+            <div class="input-section">
+                <div class="form-group">
+                    <label for="password-input">Password</label>
+                    <input type="password" id="password-input" class="text-input"
+                        placeholder="Enter a password to hash">
+                    <button id="toggle-password" class="btn small" type="button">Show</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="salt-rounds">Salt Rounds (Cost Factor)</label>
+                    <div class="range-container">
+                        <input type="range" id="salt-rounds" min="4" max="16" value="10" class="range-input">
+                        <span id="salt-value">10</span>
+                    </div>
+                    <small>Higher values are more secure but take longer to compute (8-12 recommended)</small>
+                </div>
+
+                <div class="button-group">
+                    <button id="generate-btn" class="btn primary">Generate Hash</button>
+                </div>
+            </div>
+
+            <div class="hash-display">
+                <h2>Generated Hash</h2>
+                <div id="hash-result" class="hash-result">Hash will appear here</div>
+                <button id="copy-hash-btn" class="btn secondary" disabled>Copy to Clipboard</button>
+            </div>
+
+            <div class="hash-history">
+                <h2>History</h2>
+                <div class="history-controls">
+                    <button id="clear-history-btn" class="btn secondary small">Clear History</button>
+                </div>
+                <ul id="history-list" class="history-list">
+                    <li class="empty-history">No hashes generated yet</li>
+                </ul>
+            </div>
+
+            <section class="info-section">
+                <h2>About Bcrypt</h2>
+                <p>
+                    Bcrypt is a password hashing function designed by Niels Provos and David Mazières,
+                    based on the Blowfish cipher. It is specifically designed for password hashing,
+                    incorporating a salt to protect against rainbow table attacks and adaptive cost to
+                    defend against future improvements in computing power.
+                </p>
+                <h3>Key Features:</h3>
+                <ul>
+                    <li><strong>Salt:</strong> Automatically generates and incorporates a random salt to protect against
+                        rainbow table attacks</li>
+                    <li><strong>Cost Factor:</strong> Adjustable work factor allows you to increase computational cost
+                        as hardware gets faster</li>
+                    <li><strong>Slow:</strong> Intentionally CPU-intensive to make brute-force attacks impractical</li>
+                    <li><strong>Future-Proof:</strong> Can be made slower over time as computing power increases</li>
+                </ul>
+                <h3>Hash Format:</h3>
+                <p>
+                    A bcrypt hash string has the format: <code>$2b$[cost]$[22 character salt][31 character hash]</code>
+                </p>
+                <ul>
+                    <li><code>$2b$</code> identifies the hash algorithm version</li>
+                    <li><code>[cost]</code> is the cost factor (e.g., 10)</li>
+                    <li><code>[salt]</code> is a 22-character salt</li>
+                    <li><code>[hash]</code> is the 31-character hash</li>
+                </ul>
+                <div class="security-note">
+                    <h3>Security Note:</h3>
+                    <p>
+                        This tool performs client-side hashing using JavaScript, which is suitable for educational
+                        purposes
+                        but not recommended for production systems. In a real application, password hashing should be
+                        done
+                        server-side to prevent exposure of unhashed passwords.
+                    </p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Created by <a href="https://github.com/lkhadi" target="_blank">lkhadi</a> | <span
+                    id="current-year"></span></p>
+        </footer>
+    </div>
+
+    <script src="/online-utilities/js/common.js"></script>
+    <script src="/online-utilities/js/bcrypt.min.js"></script>
+    <script src="/online-utilities/js/bcrypt-generator.js"></script>
+</body>
+
+</html>
