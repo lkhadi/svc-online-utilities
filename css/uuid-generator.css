@@ -1,0 +1,123 @@
+/* Styles specific to the UUID generator page */
+.uuid-display {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.uuid-result {
+    font-family: monospace;
+    font-size: 1.2rem;
+    background-color: var(--background-color);
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 20px;
+    word-break: break-all;
+    min-height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.uuid-history {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.uuid-history h2 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+.history-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.history-list {
+    list-style: none;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.history-list li {
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: monospace;
+}
+
+.history-list li:last-child {
+    border-bottom: none;
+}
+
+.empty-history {
+    text-align: center;
+    color: #888;
+    padding: 20px !important;
+}
+
+.timestamp {
+    color: #888;
+    font-size: 0.8rem;
+    margin-right: 10px;
+}
+
+.copy-icon {
+    cursor: pointer;
+    color: var(--primary-color);
+}
+
+.copy-icon:hover {
+    color: var(--primary-dark);
+}
+
+.info-section {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.info-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+.info-section p,
+.info-section ul {
+    margin-bottom: 15px;
+}
+
+.info-section ul {
+    padding-left: 20px;
+}
+
+@media (max-width: 600px) {
+    .button-group {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}

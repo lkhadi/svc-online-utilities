@@ -1,0 +1,52 @@
+name: Build and Deploy to K3s
+
+on:
+  push:
+    branches: [local]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-deploy:
+    runs-on: [self-hosted, linux]
+
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository }}
+      APP_NAME: svc-online-utilities              # <-- set your app name here
+      NAMESPACE: local-prod 
+      HOME: /home/runner
+      KUBECONFIG: /home/runner/.kube/config
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set image tag from commit SHA
+        run: echo "IMAGE_TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        run: |
+          IMAGE=$REGISTRY/${{ github.repository }}:$IMAGE_TAG
+          docker build -t $IMAGE .
+          docker push $IMAGE
+
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+      - name: Deploy to K3s
+        run: |
+          echo "$KUBECONFIG"
+          helm upgrade --install $APP_NAME ./helm \
+          --namespace=$NAMESPACE \
+          --set service.image=$REGISTRY/${{ github.repository }}:$IMAGE_TAG
