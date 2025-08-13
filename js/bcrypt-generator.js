@@ -60,43 +60,35 @@ document.addEventListener('DOMContentLoaded', function() {
         // Use setTimeout to allow UI to update before intensive computation
         setTimeout(function() {
             try {
-                // Generate bcrypt hash
-                dcodeIO.bcrypt.hash(password, rounds, function(err, hash) {
-                    if (err) {
-                        hashResult.textContent = 'Error generating hash';
-                        showNotification('Error: ' + err.message, 'error');
-                        console.error('Bcrypt error:', err);
-                        generateBtn.disabled = false;
-                        return;
-                    }
-                    
-                    // Display the hash
-                    hashResult.textContent = hash;
-                    copyHashBtn.disabled = false;
-                    generateBtn.disabled = false;
-                    
-                    // Add to history
-                    const timestamp = new Date();
-                    hashHistory.unshift({
-                        password: maskPassword(password),
-                        hash: hash,
-                        rounds: rounds,
-                        timestamp: timestamp.toISOString()
-                    });
-                    
-                    // Limit history size
-                    if (hashHistory.length > 50) {
-                        hashHistory.pop();
-                    }
-                    
-                    // Save to localStorage
-                    localStorage.setItem('bcryptHistory', JSON.stringify(hashHistory));
-                    
-                    // Update history display
-                    updateHistoryDisplay();
-                    
-                    showNotification('Hash generated successfully!', 'success');
+                // Generate bcrypt hash using the browser-compatible library
+                const hash = dcodeIO.bcrypt.hashSync(password, rounds);
+                
+                // Display the hash
+                hashResult.textContent = hash;
+                copyHashBtn.disabled = false;
+                generateBtn.disabled = false;
+                
+                // Add to history
+                const timestamp = new Date();
+                hashHistory.unshift({
+                    password: maskPassword(password),
+                    hash: hash,
+                    rounds: rounds,
+                    timestamp: timestamp.toISOString()
                 });
+                
+                // Limit history size
+                if (hashHistory.length > 50) {
+                    hashHistory.pop();
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('bcryptHistory', JSON.stringify(hashHistory));
+                
+                // Update history display
+                updateHistoryDisplay();
+                
+                showNotification('Hash generated successfully!', 'success');
             } catch (error) {
                 hashResult.textContent = 'Error generating hash';
                 showNotification('Error: ' + error.message, 'error');
