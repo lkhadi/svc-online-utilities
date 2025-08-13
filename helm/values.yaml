@@ -1,6 +1,7 @@
 namespace: local-prod
 domain: app.lalukismarahadi.me
 service:
+  prefix: svc-online-utilities
   port: 80
   path: /online-utilities
   image: ghcr.io/lkhadi/svc-online-utilities:latest
