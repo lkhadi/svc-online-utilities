@@ -17,8 +17,6 @@ jobs:
       IMAGE_NAME: ${{ github.repository }}
       APP_NAME: svc-online-utilities              # <-- set your app name here
       NAMESPACE: local-prod 
-      HOME: /home/runner
-      KUBECONFIG: /home/runner/.kube/config
 
     steps:
       - name: Checkout code
@@ -46,7 +44,6 @@ jobs:
 
       - name: Deploy to K3s
         run: |
-          echo "$KUBECONFIG"
           helm upgrade --install $APP_NAME ./helm \
           --namespace=$NAMESPACE \
           --set service.image=$REGISTRY/${{ github.repository }}:$IMAGE_TAG

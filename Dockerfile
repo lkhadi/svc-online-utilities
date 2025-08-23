@@ -3,13 +3,14 @@ FROM nginx:alpine
 
 # Label the container
 LABEL maintainer="lkhadi <n.kismara@gmail.com>"
-LABEL description="Online Utilities including"
+LABEL description="Web Utilities including UUID v7 Generator, Bcrypt Generator, and Picture to Base64"
 
 
 # Copy application files to nginx html directory
 COPY index.html /usr/share/nginx/html/
 COPY uuidv7-generator.html /usr/share/nginx/html/
 COPY bcrypt-generator.html /usr/share/nginx/html/
+COPY picture-to-base64.html /usr/share/nginx/html/
 COPY css/ /usr/share/nginx/html/css/
 COPY js/ /usr/share/nginx/html/js/
 
