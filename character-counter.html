@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character & Word Counter - Web Utilities</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/character-counter.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Character & Word Counter</h1>
+            <p class="description">Count characters and words in your text instantly</p>
+        </header>
+
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html" class="home-link">Home</a></li>
+                <li><a href="uuidv7-generator.html" class="utility-link">UUID v7 Generator</a></li>
+                <li><a href="bcrypt-generator.html" class="utility-link">Bcrypt Generator</a></li>
+                <li><a href="picture-to-base64.html" class="utility-link">Picture to Base64</a></li>
+                <li><a href="character-counter.html" class="utility-link active">Character & Word Counter</a></li>
+            </ul>
+        </nav>
+
+        <main>
+            <section class="counter-section">
+                <textarea id="input-text" class="input-text" rows="8"
+                    placeholder="Type or paste your text here"></textarea>
+                <div class="counts-row">
+                    <span><strong>Characters:</strong> <span id="char-count">0</span></span>
+                    <span><strong>Words:</strong> <span id="word-count">0</span></span>
+                </div>
+            </section>
+            <section class="info-section">
+                <h2>How it works</h2>
+                <ul>
+                    <li>Counts update instantly as you type or paste.</li>
+                    <li>Word count is based on sequences separated by whitespace.</li>
+                </ul>
+            </section>
+        </main>
+
+        <footer>
+            <p>Created by <a href="https://github.com/lkhadi" target="_blank">lkhadi</a> | <span
+                    id="current-year"></span></p>
+        </footer>
+    </div>
+    <script src="js/common.js"></script>
+    <script src="js/character-counter.js"></script>
+</body>
+
+</html>
