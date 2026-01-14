@@ -4,128 +4,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Picture to Base64 - Web Utilities</title>
+    
+    <!-- Primary Meta Tags -->
+    <title>Picture to Base64 Converter - Web Utilities</title>
+    <meta name="title" content="Picture to Base64 Converter - Web Utilities">
+    <meta name="description" content="Convert images to Base64 strings immediately. Resize images, generate Data URIs, and copy directly to clipboard. Free online tool.">
+    <meta name="keywords" content="image to base64, picture converter, data uri generator, image optimizer, base64 encoder, developer tools">
+    <meta name="author" content="lkhadi">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://app.lalukismarahadi.me/online-utilities/picture-to-base64.html">
+    <meta property="og:title" content="Picture to Base64 Converter - Web Utilities">
+    <meta property="og:description" content="Convert images to Base64 strings immediately. Resize images, generate Data URIs, and copy directly to clipboard. Free online tool.">
+    <meta property="og:image" content="https://app.lalukismarahadi.me/online-utilities/assets/og-image.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://app.lalukismarahadi.me/online-utilities/picture-to-base64.html">
+    <meta property="twitter:title" content="Picture to Base64 Converter - Web Utilities">
+    <meta property="twitter:description" content="Convert images to Base64 strings immediately. Resize images, generate Data URIs, and copy directly to clipboard. Free online tool.">
+    <meta property="twitter:image" content="https://app.lalukismarahadi.me/online-utilities/assets/og-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/picture-to-base64.css">
 </head>
 
-<body>
-    <div class="container">
-        <header>
-            <h1>Picture to Base64</h1>
-            <p class="description">Convert images to Base64 or Data URL with optional resize and format</p>
-        </header>
-
-        <nav class="main-nav">
-            <ul>
-                <li><a href="index.html" class="home-link">Home</a></li>
-                <li><a href="picture-to-base64.html" class="utility-link active">Picture to Base64</a></li>
-                <li><a href="uuidv7-generator.html" class="utility-link">UUID v7 Generator</a></li>
-                <li><a href="bcrypt-generator.html" class="utility-link">Bcrypt Generator</a></li>
-                <li><a href="character-counter.html" class="utility-link">Character & Word Counter</a></li>
-                <li><a href="lorem-ipsum.html" class="utility-link">Lorem Ipsum Generator</a></li>
-            </ul>
-        </nav>
-
-        <main>
-            <section class="upload-section">
-                <div id="drop-zone" class="drop-zone">
-                    <div class="dz-instructions">
-                        <strong>Drag & drop</strong> an image here, or
-                        <label for="file-input" class="link-like">browse</label>
-                        <input id="file-input" type="file" accept="image/*" hidden>
-                    </div>
-                    <div class="dz-note">Supported formats: PNG, JPEG, GIF, WebP, SVG. All conversions happen locally in
-                        your browser.</div>
-                </div>
-
-                <div class="options">
-                    <div class="option">
-                        <label>
-                            <input type="checkbox" id="include-prefix" checked>
-                            Include data URL prefix (data:[mime];base64,)
-                        </label>
-                    </div>
-
-                    <div class="option">
-                        <label for="output-type">Output format</label>
-                        <select id="output-type">
-                            <option value="same" selected>Same as input</option>
-                            <option value="image/png">PNG</option>
-                            <option value="image/jpeg">JPEG</option>
-                            <option value="image/webp">WebP</option>
-                        </select>
-                    </div>
-
-                    <div class="option">
-                        <label>
-                            <input type="checkbox" id="enable-resize">
-                            Resize image
-                        </label>
-                        <div class="resize-grid">
-                            <div>
-                                <label for="max-width">Max width (px)</label>
-                                <input type="number" id="max-width" class="num-input" placeholder="e.g., 1024" min="1">
-                            </div>
-                            <div>
-                                <label for="max-height">Max height (px)</label>
-                                <input type="number" id="max-height" class="num-input" placeholder="e.g., 1024" min="1">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="option">
-                        <label for="quality">Quality (JPEG/WebP)</label>
-                        <div class="range-row">
-                            <input type="range" id="quality" min="0.1" max="1" step="0.01" value="0.92">
-                            <span id="quality-val">0.92</span>
-                        </div>
-                    </div>
-
-                    <div class="buttons">
-                        <button id="convert-btn" class="btn primary" disabled>Convert</button>
-                        <button id="copy-btn" class="btn secondary" disabled>Copy Base64</button>
-                        <button id="download-btn" class="btn secondary" disabled>Download .txt</button>
-                    </div>
-                </div>
-            </section>
-
-            <section class="result-section">
-                <div class="preview-card">
-                    <h2>Preview</h2>
-                    <div class="preview-area">
-                        <img id="preview" alt="Preview will appear here">
-                    </div>
-                    <div id="meta" class="meta">
-                        <div><strong>Input:</strong> <span id="in-name">-</span> | <span id="in-type">-</span> | <span
-                                id="in-size">-</span> | <span id="in-dim">-</span></div>
-                        <div><strong>Output:</strong> <span id="out-type">-</span> | <span id="out-size">-</span> |
-                            <span id="out-chars">-</span> chars</div>
-                    </div>
-                </div>
-
-                <div class="output-card">
-                    <h2>Base64 Output</h2>
-                    <textarea id="output" class="output" placeholder="Your Base64 string will appear here"
-                        readonly></textarea>
-                </div>
-            </section>
-
-            <section class="info-section">
-                <h2>Notes</h2>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Web Utilities</h1>
+            </div>
+            <nav class="sidebar-nav">
                 <ul>
-                    <li>All conversions happen locally in your browser. No data is uploaded.</li>
-                    <li>For SVG images, the original text is preserved and Base64 is generated directly.</li>
-                    <li>For raster images (PNG/JPEG/WebP/GIF), optional resize and format conversion are done using an
-                        off-screen canvas.</li>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="uuidv7-generator.html">UUID v7 Generator</a></li>
+                    <li><a href="bcrypt-generator.html">Bcrypt Generator</a></li>
+                    <li><a href="picture-to-base64.html" class="active">Picture to Base64</a></li>
+                    <li><a href="character-counter.html">Character & Word Counter</a></li>
+                    <li><a href="lorem-ipsum.html">Lorem Ipsum Generator</a></li>
+                    <li><a href="youtube-thumbnail.html">YouTube Thumbnail</a></li>
                 </ul>
-            </section>
-        </main>
+            </nav>
+            <div class="sidebar-footer">
+                <p>&copy; <span id="current-year"></span> <a href="https://github.com/lkhadi" target="_blank">lkhadi</a></p>
+            </div>
+        </aside>
 
-        <footer>
-            <p>Created by <a href="https://github.com/lkhadi" target="_blank">lkhadi</a> | <span
-                    id="current-year"></span></p>
-        </footer>
+        <div class="overlay"></div>
+
+        <div class="main-content">
+            <header class="mobile-header">
+                <h1>Picture to Base64</h1>
+                <button class="menu-toggle">☰</button>
+            </header>
+
+            <div class="main-scroll">
+                <div class="container">
+                    <header class="page-header">
+                        <h2>Picture to Base64</h2>
+                        <p class="description">Convert images to Base64 or Data URL with optional resize and format</p>
+                    </header>
+
+                    <main>
+                        <section class="upload-section">
+                            <div id="drop-zone" class="drop-zone">
+                                <div class="dz-instructions">
+                                    <strong>Drag & drop</strong> an image here, or
+                                    <label for="file-input" class="link-like">browse</label>
+                                    <input id="file-input" type="file" accept="image/*" hidden>
+                                </div>
+                                <div class="dz-note">Supported formats: PNG, JPEG, GIF, WebP, SVG. All conversions happen locally in
+                                    your browser.</div>
+                            </div>
+
+                            <div class="options">
+                                <div class="option">
+                                    <label>
+                                        <input type="checkbox" id="include-prefix" checked>
+                                        Include data URL prefix (data:[mime];base64,)
+                                    </label>
+                                </div>
+
+                                <div class="option">
+                                    <label for="output-type">Output format</label>
+                                    <select id="output-type">
+                                        <option value="same" selected>Same as input</option>
+                                        <option value="image/png">PNG</option>
+                                        <option value="image/jpeg">JPEG</option>
+                                        <option value="image/webp">WebP</option>
+                                    </select>
+                                </div>
+
+                                <div class="option">
+                                    <label>
+                                        <input type="checkbox" id="enable-resize">
+                                        Resize image
+                                    </label>
+                                    <div class="resize-grid">
+                                        <div>
+                                            <label for="max-width">Max width (px)</label>
+                                            <input type="number" id="max-width" class="num-input" placeholder="e.g., 1024" min="1">
+                                        </div>
+                                        <div>
+                                            <label for="max-height">Max height (px)</label>
+                                            <input type="number" id="max-height" class="num-input" placeholder="e.g., 1024" min="1">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="option">
+                                    <label for="quality">Quality (JPEG/WebP)</label>
+                                    <div class="range-row">
+                                        <input type="range" id="quality" min="0.1" max="1" step="0.01" value="0.92">
+                                        <span id="quality-val">0.92</span>
+                                    </div>
+                                </div>
+
+                                <div class="buttons">
+                                    <button id="convert-btn" class="btn primary" disabled>Convert</button>
+                                    <button id="copy-btn" class="btn secondary" disabled>Copy Base64</button>
+                                    <button id="download-btn" class="btn secondary" disabled>Download .txt</button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="result-section">
+                            <div class="preview-card">
+                                <h2>Preview</h2>
+                                <div class="preview-area">
+                                    <img id="preview" alt="Preview will appear here">
+                                </div>
+                                <div id="meta" class="meta">
+                                    <div><strong>Input:</strong> <span id="in-name">-</span> | <span id="in-type">-</span> | <span
+                                            id="in-size">-</span> | <span id="in-dim">-</span></div>
+                                    <div><strong>Output:</strong> <span id="out-type">-</span> | <span id="out-size">-</span> |
+                                        <span id="out-chars">-</span> chars</div>
+                                </div>
+                            </div>
+
+                            <div class="output-card">
+                                <h2>Base64 Output</h2>
+                                <textarea id="output" class="output" placeholder="Your Base64 string will appear here"
+                                    readonly></textarea>
+                            </div>
+                        </section>
+
+                        <section class="info-section">
+                            <h2>Notes</h2>
+                            <ul>
+                                <li>All conversions happen locally in your browser. No data is uploaded.</li>
+                                <li>For SVG images, the original text is preserved and Base64 is generated directly.</li>
+                                <li>For raster images (PNG/JPEG/WebP/GIF), optional resize and format conversion are done using an
+                                    off-screen canvas.</li>
+                            </ul>
+                        </section>
+                    </main>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="js/common.js"></script>

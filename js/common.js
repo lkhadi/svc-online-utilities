@@ -2,11 +2,41 @@
  * Common functionality shared across all pages
  */
 document.addEventListener('DOMContentLoaded', function() {
-    // Set current year in footer
+    // Current Year in Footer
     const currentYearSpan = document.getElementById('current-year');
     if (currentYearSpan) {
         currentYearSpan.textContent = new Date().getFullYear();
     }
+
+    // Sidebar Toggle Logic
+    const menuToggle = document.querySelector('.menu-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.querySelector('.overlay');
+
+    function toggleSidebar() {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('show');
+    }
+
+    if (menuToggle) {
+        menuToggle.addEventListener('click', toggleSidebar);
+    }
+
+    // Close sidebar when clicking overlay
+    if (overlay) {
+        overlay.addEventListener('click', toggleSidebar);
+    }
+
+    // Active Link Highlighting
+    const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+    const navLinks = document.querySelectorAll('.sidebar-nav a');
+    
+    navLinks.forEach(link => {
+        const linkPath = link.getAttribute('href');
+        if (linkPath === currentPath) {
+            link.classList.add('active');
+        }
+    });
 
     /**
      * Show a notification
@@ -14,7 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
      * @param {string} type The type of notification (success, error, info)
      */
     window.showNotification = function(message, type = 'info') {
-        // Create notification element if it doesn't exist
         let notification = document.querySelector('.notification');
         if (!notification) {
             notification = document.createElement('div');
@@ -22,16 +51,14 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.appendChild(notification);
         }
         
-        // Update notification content and style
         notification.textContent = message;
         notification.className = 'notification ' + type;
         
-        // Show notification
+        // Use slight delay to allow transition
         setTimeout(() => {
             notification.classList.add('show');
         }, 10);
         
-        // Hide notification after delay
         setTimeout(() => {
             notification.classList.remove('show');
         }, 3000);
