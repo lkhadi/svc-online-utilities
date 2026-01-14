@@ -1,5 +1,5 @@
 namespace: local-prod
-domain: app.lalukismarahadi.me
+domain: meskipun.win
 service:
   prefix: svc-online-utilities
   port: 80
