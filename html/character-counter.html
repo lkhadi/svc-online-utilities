@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Primary Meta Tags -->
+    <title>Character & Word Counter - Web Utilities</title>
+    <meta name="title" content="Character & Word Counter - Web Utilities">
+    <meta name="description" content="Free online character and word counter. Count letters, words, sentences, and paragraphs in your text instantly. Real-time statistics.">
+    <meta name="keywords" content="character counter, word counter, text statistics, letter count, word count, online tool, writing tools">
+    <meta name="author" content="lkhadi">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://app.lalukismarahadi.me/online-utilities/character-counter.html">
+    <meta property="og:title" content="Character & Word Counter - Web Utilities">
+    <meta property="og:description" content="Free online character and word counter. Count letters, words, sentences, and paragraphs in your text instantly. Real-time statistics.">
+    <meta property="og:image" content="https://app.lalukismarahadi.me/online-utilities/assets/og-image.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://app.lalukismarahadi.me/online-utilities/character-counter.html">
+    <meta property="twitter:title" content="Character & Word Counter - Web Utilities">
+    <meta property="twitter:description" content="Free online character and word counter. Count letters, words, sentences, and paragraphs in your text instantly. Real-time statistics.">
+    <meta property="twitter:image" content="https://app.lalukismarahadi.me/online-utilities/assets/og-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/character-counter.css">
+</head>
+
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Web Utilities</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="uuidv7-generator.html">UUID v7 Generator</a></li>
+                    <li><a href="bcrypt-generator.html">Bcrypt Generator</a></li>
+                    <li><a href="picture-to-base64.html">Picture to Base64</a></li>
+                    <li><a href="character-counter.html" class="active">Character & Word Counter</a></li>
+                    <li><a href="lorem-ipsum.html">Lorem Ipsum Generator</a></li>
+                    <li><a href="youtube-thumbnail.html">YouTube Thumbnail</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <p>&copy; <span id="current-year"></span> <a href="https://github.com/lkhadi" target="_blank">lkhadi</a></p>
+            </div>
+        </aside>
+
+        <div class="overlay"></div>
+
+        <div class="main-content">
+            <header class="mobile-header">
+                <h1>Character Counter</h1>
+                <button class="menu-toggle">☰</button>
+            </header>
+
+            <div class="main-scroll">
+                <div class="container">
+                    <header class="page-header">
+                        <h2>Character & Word Counter</h2>
+                        <p class="description">Count characters and words in your text instantly</p>
+                    </header>
+
+                    <main>
+                        <section class="counter-section">
+                            <textarea id="input-text" class="input-text" rows="8"
+                                placeholder="Type or paste your text here"></textarea>
+                            <div class="counts-row">
+                                <span><strong>Characters:</strong> <span id="char-count">0</span></span>
+                                <span><strong>Words:</strong> <span id="word-count">0</span></span>
+                            </div>
+                        </section>
+                        <section class="info-section">
+                            <h2>How it works</h2>
+                            <ul>
+                                <li>Counts update instantly as you type or paste.</li>
+                                <li>Word count is based on sequences separated by whitespace.</li>
+                            </ul>
+                        </section>
+                    </main>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/common.js"></script>
+    <script src="js/character-counter.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Primary Meta Tags -->
+    <title>UUID v7 Generator - Web Utilities</title>
+    <meta name="title" content="UUID v7 Generator - Web Utilities">
+    <meta name="description" content="Generate time-ordered UUID v7 strings instantly online. A free, client-side developer tool for generating Universally Unique Identifiers.">
+    <meta name="keywords" content="uuid generator, uuid v7, online uuid tool, developer tools, guid generator, free tools">
+    <meta name="author" content="lkhadi">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://app.lalukismarahadi.me/online-utilities/uuidv7-generator.html">
+    <meta property="og:title" content="UUID v7 Generator - Web Utilities">
+    <meta property="og:description" content="Generate time-ordered UUID v7 strings instantly online. A free, client-side developer tool for generating Universally Unique Identifiers.">
+    <meta property="og:image" content="https://app.lalukismarahadi.me/online-utilities/assets/og-image.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://app.lalukismarahadi.me/online-utilities/uuidv7-generator.html">
+    <meta property="twitter:title" content="UUID v7 Generator - Web Utilities">
+    <meta property="twitter:description" content="Generate time-ordered UUID v7 strings instantly online. A free, client-side developer tool for generating Universally Unique Identifiers.">
+    <meta property="twitter:image" content="https://app.lalukismarahadi.me/online-utilities/assets/og-image.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/uuid-generator.css">
+</head>
+
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Web Utilities</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="uuidv7-generator.html" class="active">UUID v7 Generator</a></li>
+                    <li><a href="bcrypt-generator.html">Bcrypt Generator</a></li>
+                    <li><a href="picture-to-base64.html">Picture to Base64</a></li>
+                    <li><a href="character-counter.html">Character & Word Counter</a></li>
+                    <li><a href="lorem-ipsum.html">Lorem Ipsum Generator</a></li>
+                    <li><a href="youtube-thumbnail.html">YouTube Thumbnail</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <p>&copy; <span id="current-year"></span> <a href="https://github.com/lkhadi" target="_blank">lkhadi</a></p>
+            </div>
+        </aside>
+
+        <div class="overlay"></div>
+
+        <div class="main-content">
+            <header class="mobile-header">
+                <h1>UUID v7</h1>
+                <button class="menu-toggle">☰</button>
+            </header>
+
+            <div class="main-scroll">
+                <div class="container">
+                    <header class="page-header">
+                        <h2>UUID v7 Generator</h2>
+                        <p class="description">Generate time-ordered UUIDs based on the UUID v7 specification</p>
+                    </header>
+
+                    <main>
+                        <div class="uuid-display">
+                            <div id="uuid-result" class="uuid-result">Click "Generate" to create a UUID</div>
+                            <div class="button-group">
+                                <button id="generate-btn" class="btn primary">Generate UUID v7</button>
+                                <button id="copy-btn" class="btn secondary" disabled>Copy to Clipboard</button>
+                            </div>
+                        </div>
+
+                        <div class="uuid-history">
+                            <h2>History</h2>
+                            <div class="history-controls">
+                                <button id="clear-history-btn" class="btn secondary small">Clear History</button>
+                            </div>
+                            <ul id="history-list" class="history-list">
+                                <li class="empty-history">No UUIDs generated yet</li>
+                            </ul>
+                        </div>
+
+                        <section class="info-section">
+                            <h2>About UUID v7</h2>
+                            <p>
+                                UUID version 7 provides a time-ordered value that can be used for sortable database
+                                keys while maintaining the same format as other UUIDs. Unlike previous UUID versions,
+                                UUID v7 is designed for better database indexing and sorting by timestamp.
+                            </p>
+                            <p>
+                                The UUID v7 format consists of:
+                            </p>
+                            <ul>
+                                <li>48 bits of timestamp with millisecond precision</li>
+                                <li>74 bits of random data</li>
+                                <li>4 bits for the version (7)</li>
+                                <li>2 bits for the variant</li>
+                            </ul>
+                            <p>
+                                This implementation follows the proposed <a
+                                    href="https://www.ietf.org/archive/id/draft-peabody-uuid-07.html" target="_blank">UUID v7
+                                    specification</a>.
+                            </p>
+                        </section>
+                    </main>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script src="js/uuid.js"></script>
+    <script src="js/uuid-generator.js"></script>
+</body>
+
+</html>

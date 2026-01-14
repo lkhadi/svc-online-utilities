@@ -3,30 +3,39 @@ FROM nginx:alpine
 
 # Label the container
 LABEL maintainer="lkhadi <n.kismara@gmail.com>"
-LABEL description="Online Utilities including"
+LABEL description="Web Utilities including UUID v7 Generator, Bcrypt Generator, and Picture to Base64"
 
-# Create a non-root user for better security
-RUN adduser -D -H -u 1000 webuser && \
-    chown -R webuser:webuser /usr/share/nginx/html && \
-    chown -R webuser:webuser /var/cache/nginx && \
-    chown -R webuser:webuser /var/log/nginx && \
-    chmod -R 755 /var/log/nginx && \
-    chmod -R 755 /var/cache/nginx
 
 # Copy application files to nginx html directory
-COPY --chown=webuser:webuser index.html /usr/share/nginx/html/
-COPY --chown=webuser:webuser uuid-generator.html /usr/share/nginx/html/
-COPY --chown=webuser:webuser css/ /usr/share/nginx/html/css/
-COPY --chown=webuser:webuser js/ /usr/share/nginx/html/js/
+COPY html/ /usr/share/nginx/html/
+COPY css/ /usr/share/nginx/html/css/
+COPY js/ /usr/share/nginx/html/js/
 
-# Configure nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+RUN echo 'server { \
+    listen 80; \
+    server_name localhost; \
+    \
+    # Root directory and index file \
+    root /usr/share/nginx/html; \
+    index index.html; \
+    \
+    location / { \
+    try_files $uri $uri/ =404; \
+    } \
+    }' > /etc/nginx/conf.d/default.conf
+
+# Update nginx.conf to use pid file in a location that will be writable
+RUN sed -i 's|pid        /var/run/nginx.pid;|pid        /tmp/nginx.pid;|' /etc/nginx/nginx.conf && \
+    # Remove the user directive since we'll run as non-root
+    sed -i 's|user nginx;|# user nginx;|' /etc/nginx/nginx.conf
+
+# Make required directories writable
+RUN mkdir -p /var/cache/nginx /var/log/nginx /tmp/nginx && \
+    chmod -R 777 /var/cache/nginx /var/log/nginx /tmp/nginx /etc/nginx/conf.d
+
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 CMD wget -q --spider http://localhost/ || exit 1
 
-# Run as non-root
-USER webuser
 
 # Expose port 80
 EXPOSE 80
