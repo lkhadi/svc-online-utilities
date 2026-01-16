@@ -35,9 +35,9 @@ spec:
             httpGet:
               path: /api/health
               port: {{ .Values.service.port }}
-            initialDelaySeconds: 5
-            periodSeconds: 5
-            failureThreshold: 30
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 18
           readinessProbe:
             httpGet:
               path: /api/health
@@ -53,11 +53,11 @@ spec:
             failureThreshold: 3
           resources:
             requests:
-              cpu: "10m"
-              memory: "28Mi"
+              cpu: "50m"
+              memory: "128Mi"
             limits:
-              cpu: "20m"
-              memory: "156Mi"
+              cpu: "200m"
+              memory: "256Mi"
 
 ---
 apiVersion: v1
