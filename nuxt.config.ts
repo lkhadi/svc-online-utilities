@@ -47,6 +47,7 @@ export default defineNuxtConfig({
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'author', content: 'lkhadi' },
+        { name: 'google-adsense-account', content: 'ca-pub-2104604669547614' },
       ],
       link: [
         { rel: 'icon', href: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🚀</text></svg>' },
