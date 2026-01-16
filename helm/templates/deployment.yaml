@@ -5,6 +5,11 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
   selector:
     matchLabels:
       app: {{ .Chart.Name }}
@@ -26,6 +31,21 @@ spec:
                 name: db-config-pg
             - secretRef:
                 name: db-secret-pg
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
           resources:
             requests:
               cpu: "10m"
