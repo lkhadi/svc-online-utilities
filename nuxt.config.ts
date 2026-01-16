@@ -6,6 +6,9 @@ export default defineNuxtConfig({
   // Source directory for Nuxt files
   srcDir: 'app',
 
+  // Server directory (at root, not inside srcDir)
+  serverDir: 'server',
+
   // SSR is enabled by default
   ssr: true,
 
