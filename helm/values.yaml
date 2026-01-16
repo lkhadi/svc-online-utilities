@@ -1,5 +1,5 @@
 namespace: local-prod
-domain: meskipun.win
+domain: www.meskipun.win
 host: www.meskipun.win
 service:
   prefix: svc-online-utilities

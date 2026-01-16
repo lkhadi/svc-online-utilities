@@ -9,25 +9,44 @@ export default defineNuxtConfig({
   // SSR is enabled by default
   ssr: true,
 
+  // Modules
+  modules: ['@nuxtjs/seo'],
+
+  // Site configuration for SEO
+  site: {
+    url: 'https://www.meskipun.win',
+    name: 'meskipun.win',
+    description: 'Read. Create. Play. Discover articles, tools, and games — all free and accessible.',
+    defaultLocale: 'en',
+  },
+
+  // Robots.txt configuration
+  robots: {
+    groups: [
+      {
+        userAgent: '*',
+        allow: '/',
+      },
+      {
+        userAgent: 'GPTBot',
+        disallow: '/',
+      },
+    ],
+  },
+
+  // Sitemap configuration
+  sitemap: {
+    strictNuxtContentPaths: true,
+  },
+
   // App configuration
   app: {
     head: {
-      title: 'meskipun.win - Digital Tools & Utilities',
+      title: 'meskipun.win - Read. Create. Play.',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'A collection of powerful digital tools and utilities for developers and creators.' },
         { name: 'author', content: 'lkhadi' },
-        // Open Graph
-        { property: 'og:type', content: 'website' },
-        { property: 'og:url', content: 'https://meskipun.win' },
-        { property: 'og:title', content: 'meskipun.win - Digital Tools & Utilities' },
-        { property: 'og:description', content: 'A collection of powerful digital tools and utilities for developers and creators.' },
-        // Twitter
-        { property: 'twitter:card', content: 'summary_large_image' },
-        { property: 'twitter:url', content: 'https://meskipun.win' },
-        { property: 'twitter:title', content: 'meskipun.win - Digital Tools & Utilities' },
-        { property: 'twitter:description', content: 'A collection of powerful digital tools and utilities for developers and creators.' },
       ],
       link: [
         { rel: 'icon', href: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🚀</text></svg>' },

@@ -23,16 +23,16 @@ spec:
             - containerPort: {{ .Values.service.port }}
           envFrom:
             - configMapRef:
-                name: db-config
+                name: db-config-pg
             - secretRef:
-                name: db-secret
+                name: db-secret-pg
           resources:
             requests:
               cpu: "10m"
               memory: "28Mi"
             limits:
               cpu: "20m"
-              memory: "56Mi"
+              memory: "156Mi"
 
 ---
 apiVersion: v1
