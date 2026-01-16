@@ -53,8 +53,8 @@ const features = [
     icon: '📝',
     title: 'Blog',
     description: 'Read interesting articles on various topics. Personal stories, tips, tutorials, and random thoughts.',
-    link: '#',
-    tools: ['Coming Soon'],
+    link: '/blog',
+    tools: ['Articles', 'Tutorials', 'Insights'],
     gradient: 'primary'
   },
   {

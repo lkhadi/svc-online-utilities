@@ -38,6 +38,7 @@ const isMenuOpen = ref(false)
 const navLinks = [
   { label: 'Home', path: '/' },
   { label: 'Features', path: '/#features' },
+  { label: 'Blog', path: '/blog' },
   { label: 'Tools', path: '/tools' },
 ]
 </script>

@@ -26,6 +26,9 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: {{ .Values.service.port }}
+          env:
+            - name: DB_DATABASE
+              value: "meskipun"
           envFrom:
             - configMapRef:
                 name: db-config-pg
