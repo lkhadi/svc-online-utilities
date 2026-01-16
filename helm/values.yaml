@@ -1,6 +1,6 @@
 namespace: local-prod
-domain: www.meskipun.win
-host: meskipun.win
+domain: meskipun.win
+host: www.meskipun.win
 service:
   prefix: svc-online-utilities
   port: 3000
