@@ -8,6 +8,8 @@
       
       <p class="footer-copyright">
         © {{ currentYear }} <a href="https://github.com/lkhadi" target="_blank" rel="noopener">lkhadi</a>. All rights reserved.
+        <span class="mx-2">•</span>
+        <NuxtLink to="/privacy">Privacy Policy</NuxtLink>
       </p>
     </div>
   </footer>
@@ -67,6 +69,10 @@ const currentYear = new Date().getFullYear()
 
 .footer-copyright a:hover {
   color: var(--color-accent-primary);
+}
+
+.mx-2 {
+  margin: 0 var(--spacing-sm);
 }
 
 @media (max-width: 640px) {
