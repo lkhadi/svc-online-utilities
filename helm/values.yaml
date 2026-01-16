@@ -1,7 +1,8 @@
 namespace: local-prod
 domain: meskipun.win
+host: meskipun.win
 service:
   prefix: svc-online-utilities
-  port: 80
-  path: /online-utilities
+  port: 3000
+  path: /
   image: ghcr.io/lkhadi/svc-online-utilities:latest

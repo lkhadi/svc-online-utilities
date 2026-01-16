@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://meskipun.win/online-utilities/sitemap.xml
