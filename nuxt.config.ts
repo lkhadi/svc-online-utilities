@@ -33,14 +33,8 @@ export default defineNuxtConfig({
         },
       },
     },
-    // Include game-assets in production build
-    publicAssets: [
-      {
-        dir: 'public/game-assets',
-        baseURL: '/game-assets',
-        maxAge: 60 * 60 * 24 * 365, // 1 year cache
-      },
-    ],
+    // Note: game-assets are served by custom route handler at
+    // server/routes/game-assets/[...path].ts which handles both dev and production paths
   },
 
   // Site configuration for SEO
