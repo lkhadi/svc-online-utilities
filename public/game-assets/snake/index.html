@@ -239,54 +239,66 @@
       box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
     }
 
-    /* Virtual Joystick Styles */
-    .virtual-joystick {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      margin: 15px auto 0;
-      max-width: 180px;
+    /* Analog Joystick Styles */
+    .analog-joystick {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      margin: 20px auto 0;
+      touch-action: none;
     }
 
-    .joystick-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-
-    .joystick-btn {
-      width: 52px;
-      height: 52px;
+    .joystick-base {
+      position: absolute;
+      width: 140px;
+      height: 140px;
       border-radius: 50%;
-      border: 2px solid #10b981;
-      background: white;
-      color: #10b981;
-      font-size: 1.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
+      background: linear-gradient(145deg, #e6e6e6, #ffffff);
+      border: 3px solid #d1d5db;
+      box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-    .joystick-btn:hover,
-    .joystick-btn:active {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-      transform: scale(0.95);
-    }
-
-    .joystick-center {
-      width: 52px;
-      height: 52px;
+    .joystick-knob {
+      position: absolute;
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
-      background: #e5e7eb;
-      opacity: 0.5;
+      background: linear-gradient(145deg, #10b981, #059669);
+      border: 3px solid #047857;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      cursor: grab;
+      transition: box-shadow 0.15s ease;
     }
+
+    .joystick-knob:active {
+      cursor: grabbing;
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+    }
+
+    .joystick-knob.active {
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+    }
+
+    .direction-indicators {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .direction-indicator {
+      position: absolute;
+      font-size: 0.875rem;
+      color: #9ca3af;
+      font-weight: 600;
+    }
+
+    .direction-indicator.up { top: 8px; left: 50%; transform: translateX(-50%); }
+    .direction-indicator.down { bottom: 8px; left: 50%; transform: translateX(-50%); }
+    .direction-indicator.left { left: 8px; top: 50%; transform: translateY(-50%); }
+    .direction-indicator.right { right: 8px; top: 50%; transform: translateY(-50%); }
 
     @media (max-width: 600px) {
       h1 {
@@ -327,18 +339,15 @@
       </div>
     </div>
 
-    <!-- Virtual Joystick -->
-    <div class="virtual-joystick">
-      <div class="joystick-row">
-        <button class="joystick-btn" id="btn-up" aria-label="Up">&#9650;</button>
-      </div>
-      <div class="joystick-row">
-        <button class="joystick-btn" id="btn-left" aria-label="Left">&#9664;</button>
-        <div class="joystick-center"></div>
-        <button class="joystick-btn" id="btn-right" aria-label="Right">&#9654;</button>
-      </div>
-      <div class="joystick-row">
-        <button class="joystick-btn" id="btn-down" aria-label="Down">&#9660;</button>
+    <!-- Analog Joystick -->
+    <div class="analog-joystick" id="joystick">
+      <div class="joystick-base"></div>
+      <div class="joystick-knob" id="joystick-knob"></div>
+      <div class="direction-indicators">
+        <span class="direction-indicator up">▲</span>
+        <span class="direction-indicator down">▼</span>
+        <span class="direction-indicator left">◀</span>
+        <span class="direction-indicator right">▶</span>
       </div>
     </div>
 
@@ -641,23 +650,103 @@
       }
     }
 
-    // Joystick button handler
-    function handleJoystickPress(direction) {
-      if (!state.gameActive) return;
-      switch (direction) {
-        case 'up':
-          if (state.direction !== 'down') state.nextDirection = 'up';
-          break;
-        case 'down':
-          if (state.direction !== 'up') state.nextDirection = 'down';
-          break;
-        case 'left':
-          if (state.direction !== 'right') state.nextDirection = 'left';
-          break;
-        case 'right':
-          if (state.direction !== 'left') state.nextDirection = 'right';
-          break;
+    // Analog Joystick handler
+    function setupAnalogJoystick() {
+      const joystick = document.getElementById('joystick');
+      const knob = document.getElementById('joystick-knob');
+      const baseRadius = 70; // half of 140px base
+      const knobRadius = 30; // half of 60px knob
+      const maxDistance = baseRadius - knobRadius;
+      const deadzone = 15; // minimum distance to register direction
+
+      let isActive = false;
+      let centerX, centerY;
+
+      function getDirection(angle) {
+        // Convert angle to direction (angle in radians, 0 = right, counter-clockwise)
+        const deg = angle * (180 / Math.PI);
+        if (deg >= -45 && deg < 45) return 'right';
+        if (deg >= 45 && deg < 135) return 'up';
+        if (deg >= -135 && deg < -45) return 'down';
+        return 'left';
       }
+
+      function updateKnob(clientX, clientY) {
+        const rect = joystick.getBoundingClientRect();
+        centerX = rect.left + rect.width / 2;
+        centerY = rect.top + rect.height / 2;
+
+        let deltaX = clientX - centerX;
+        let deltaY = centerY - clientY; // Inverted for correct up/down
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        const angle = Math.atan2(deltaY, deltaX);
+
+        // Clamp to max distance
+        const clampedDistance = Math.min(distance, maxDistance);
+        const clampedX = Math.cos(angle) * clampedDistance;
+        const clampedY = -Math.sin(angle) * clampedDistance; // Re-invert for CSS
+
+        // Move the knob
+        knob.style.transform = `translate(calc(-50% + ${clampedX}px), calc(-50% + ${clampedY}px))`;
+
+        // Only register direction if beyond deadzone and game is active
+        if (distance > deadzone && state.gameActive) {
+          const direction = getDirection(angle);
+          switch (direction) {
+            case 'up':
+              if (state.direction !== 'down') state.nextDirection = 'up';
+              break;
+            case 'down':
+              if (state.direction !== 'up') state.nextDirection = 'down';
+              break;
+            case 'left':
+              if (state.direction !== 'right') state.nextDirection = 'left';
+              break;
+            case 'right':
+              if (state.direction !== 'left') state.nextDirection = 'right';
+              break;
+          }
+        }
+      }
+
+      function resetKnob() {
+        knob.style.transform = 'translate(-50%, -50%)';
+        knob.classList.remove('active');
+        isActive = false;
+      }
+
+      // Touch events
+      joystick.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        isActive = true;
+        knob.classList.add('active');
+        const touch = e.touches[0];
+        updateKnob(touch.clientX, touch.clientY);
+      }, { passive: false });
+
+      joystick.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (!isActive) return;
+        const touch = e.touches[0];
+        updateKnob(touch.clientX, touch.clientY);
+      }, { passive: false });
+
+      joystick.addEventListener('touchend', resetKnob);
+      joystick.addEventListener('touchcancel', resetKnob);
+
+      // Mouse events (for desktop testing)
+      joystick.addEventListener('mousedown', (e) => {
+        isActive = true;
+        knob.classList.add('active');
+        updateKnob(e.clientX, e.clientY);
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!isActive) return;
+        updateKnob(e.clientX, e.clientY);
+      });
+
+      document.addEventListener('mouseup', resetKnob);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -678,21 +767,8 @@
         startGame();
       });
 
-      // Joystick button event listeners
-      const btnUp = document.getElementById('btn-up');
-      const btnDown = document.getElementById('btn-down');
-      const btnLeft = document.getElementById('btn-left');
-      const btnRight = document.getElementById('btn-right');
-
-      btnUp.addEventListener('touchstart', (e) => { e.preventDefault(); handleJoystickPress('up'); });
-      btnDown.addEventListener('touchstart', (e) => { e.preventDefault(); handleJoystickPress('down'); });
-      btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); handleJoystickPress('left'); });
-      btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); handleJoystickPress('right'); });
-
-      btnUp.addEventListener('mousedown', () => handleJoystickPress('up'));
-      btnDown.addEventListener('mousedown', () => handleJoystickPress('down'));
-      btnLeft.addEventListener('mousedown', () => handleJoystickPress('left'));
-      btnRight.addEventListener('mousedown', () => handleJoystickPress('right'));
+      // Setup analog joystick
+      setupAnalogJoystick();
 
       // Initialize game (draw initial state, but don't start until user clicks New Game)
       initGame();

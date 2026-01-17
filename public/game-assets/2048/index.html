@@ -237,54 +237,66 @@
       box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
     }
 
-    /* Virtual Joystick Styles */
-    .virtual-joystick {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      margin: 15px auto 0;
-      max-width: 180px;
+    /* Analog Joystick Styles */
+    .analog-joystick {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      margin: 20px auto 0;
+      touch-action: none;
     }
 
-    .joystick-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-
-    .joystick-btn {
-      width: 52px;
-      height: 52px;
+    .joystick-base {
+      position: absolute;
+      width: 140px;
+      height: 140px;
       border-radius: 50%;
-      border: 2px solid #f59e0b;
-      background: white;
-      color: #f59e0b;
-      font-size: 1.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
+      background: linear-gradient(145deg, #e6e6e6, #ffffff);
+      border: 3px solid #d1d5db;
+      box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-    .joystick-btn:hover,
-    .joystick-btn:active {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: white;
-      transform: scale(0.95);
-    }
-
-    .joystick-center {
-      width: 52px;
-      height: 52px;
+    .joystick-knob {
+      position: absolute;
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
-      background: #e5e7eb;
-      opacity: 0.5;
+      background: linear-gradient(145deg, #f59e0b, #d97706);
+      border: 3px solid #b45309;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      cursor: grab;
+      transition: box-shadow 0.15s ease;
     }
+
+    .joystick-knob:active {
+      cursor: grabbing;
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+    }
+
+    .joystick-knob.active {
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+    }
+
+    .direction-indicators {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .direction-indicator {
+      position: absolute;
+      font-size: 0.875rem;
+      color: #9ca3af;
+      font-weight: 600;
+    }
+
+    .direction-indicator.up { top: 8px; left: 50%; transform: translateX(-50%); }
+    .direction-indicator.down { bottom: 8px; left: 50%; transform: translateX(-50%); }
+    .direction-indicator.left { left: 8px; top: 50%; transform: translateY(-50%); }
+    .direction-indicator.right { right: 8px; top: 50%; transform: translateY(-50%); }
 
     @media (max-width: 600px) {
       h1 {
@@ -329,18 +341,15 @@
 
     <div class="game-board" id="game-board"></div>
 
-    <!-- Virtual Joystick -->
-    <div class="virtual-joystick">
-      <div class="joystick-row">
-        <button class="joystick-btn" id="btn-up" aria-label="Up">&#9650;</button>
-      </div>
-      <div class="joystick-row">
-        <button class="joystick-btn" id="btn-left" aria-label="Left">&#9664;</button>
-        <div class="joystick-center"></div>
-        <button class="joystick-btn" id="btn-right" aria-label="Right">&#9654;</button>
-      </div>
-      <div class="joystick-row">
-        <button class="joystick-btn" id="btn-down" aria-label="Down">&#9660;</button>
+    <!-- Analog Joystick -->
+    <div class="analog-joystick" id="joystick">
+      <div class="joystick-base"></div>
+      <div class="joystick-knob" id="joystick-knob"></div>
+      <div class="direction-indicators">
+        <span class="direction-indicator up">▲</span>
+        <span class="direction-indicator down">▼</span>
+        <span class="direction-indicator left">◀</span>
+        <span class="direction-indicator right">▶</span>
       </div>
     </div>
 
@@ -620,9 +629,92 @@
       }
     }
 
-    // Joystick button handler
-    function handleJoystickPress(direction) {
-      move(direction);
+    // Analog Joystick handler
+    function setupAnalogJoystick() {
+      const joystick = document.getElementById('joystick');
+      const knob = document.getElementById('joystick-knob');
+      const baseRadius = 70;
+      const knobRadius = 30;
+      const maxDistance = baseRadius - knobRadius;
+      const deadzone = 20;
+
+      let isActive = false;
+      let lastDirection = null;
+      let centerX, centerY;
+
+      function getDirection(angle) {
+        const deg = angle * (180 / Math.PI);
+        if (deg >= -45 && deg < 45) return 'right';
+        if (deg >= 45 && deg < 135) return 'up';
+        if (deg >= -135 && deg < -45) return 'down';
+        return 'left';
+      }
+
+      function updateKnob(clientX, clientY) {
+        const rect = joystick.getBoundingClientRect();
+        centerX = rect.left + rect.width / 2;
+        centerY = rect.top + rect.height / 2;
+
+        let deltaX = clientX - centerX;
+        let deltaY = centerY - clientY;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        const angle = Math.atan2(deltaY, deltaX);
+
+        const clampedDistance = Math.min(distance, maxDistance);
+        const clampedX = Math.cos(angle) * clampedDistance;
+        const clampedY = -Math.sin(angle) * clampedDistance;
+
+        knob.style.transform = `translate(calc(-50% + ${clampedX}px), calc(-50% + ${clampedY}px))`;
+
+        // For 2048, only trigger move once when direction changes
+        if (distance > deadzone) {
+          const direction = getDirection(angle);
+          if (direction !== lastDirection) {
+            lastDirection = direction;
+            move(direction);
+          }
+        }
+      }
+
+      function resetKnob() {
+        knob.style.transform = 'translate(-50%, -50%)';
+        knob.classList.remove('active');
+        isActive = false;
+        lastDirection = null;
+      }
+
+      joystick.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        isActive = true;
+        lastDirection = null;
+        knob.classList.add('active');
+        const touch = e.touches[0];
+        updateKnob(touch.clientX, touch.clientY);
+      }, { passive: false });
+
+      joystick.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (!isActive) return;
+        const touch = e.touches[0];
+        updateKnob(touch.clientX, touch.clientY);
+      }, { passive: false });
+
+      joystick.addEventListener('touchend', resetKnob);
+      joystick.addEventListener('touchcancel', resetKnob);
+
+      joystick.addEventListener('mousedown', (e) => {
+        isActive = true;
+        lastDirection = null;
+        knob.classList.add('active');
+        updateKnob(e.clientX, e.clientY);
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!isActive) return;
+        updateKnob(e.clientX, e.clientY);
+      });
+
+      document.addEventListener('mouseup', resetKnob);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -642,21 +734,8 @@
         initGame();
       });
 
-      // Joystick button event listeners
-      const btnUp = document.getElementById('btn-up');
-      const btnDown = document.getElementById('btn-down');
-      const btnLeft = document.getElementById('btn-left');
-      const btnRight = document.getElementById('btn-right');
-
-      btnUp.addEventListener('touchstart', (e) => { e.preventDefault(); handleJoystickPress('up'); });
-      btnDown.addEventListener('touchstart', (e) => { e.preventDefault(); handleJoystickPress('down'); });
-      btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); handleJoystickPress('left'); });
-      btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); handleJoystickPress('right'); });
-
-      btnUp.addEventListener('mousedown', () => handleJoystickPress('up'));
-      btnDown.addEventListener('mousedown', () => handleJoystickPress('down'));
-      btnLeft.addEventListener('mousedown', () => handleJoystickPress('left'));
-      btnRight.addEventListener('mousedown', () => handleJoystickPress('right'));
+      // Setup analog joystick
+      setupAnalogJoystick();
 
       initGame();
     });
