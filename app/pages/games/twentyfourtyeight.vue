@@ -20,7 +20,7 @@
         <iframe
           v-show="!loading"
           ref="gameFrame"
-          src="/game-assets/2048/index.html"
+          :src="gameSrc"
           class="game-frame"
           @load="onGameLoad"
           allowfullscreen
@@ -59,6 +59,8 @@ useSeoMeta({
 const gameFrame = ref<HTMLIFrameElement | null>(null)
 const loading = ref(true)
 const isFullscreen = ref(false)
+const gameVersion = Date.now()
+const gameSrc = computed(() => `/game-assets/2048/index.html?v=${gameVersion}`)
 
 function onGameLoad() {
   loading.value = false
