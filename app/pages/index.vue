@@ -69,8 +69,8 @@ const features = [
     icon: '🎮',
     title: 'Games',
     description: 'Take a break and enjoy fun HTML5 games. Classic arcade games, puzzles, and more—all playable in your browser.',
-    link: '#',
-    tools: ['Coming Soon'],
+    link: '/games',
+    tools: ['Solitaire', 'Mahjong', 'SuperTux'],
     gradient: 'accent'
   },
 ]

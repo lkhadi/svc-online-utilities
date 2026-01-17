@@ -15,6 +15,26 @@ export default defineNuxtConfig({
   // Modules
   modules: ['@nuxtjs/seo'],
 
+  // Route rules for game pages
+  routeRules: {
+    '/game-assets/**': {
+      headers: {
+        'X-Frame-Options': 'SAMEORIGIN',
+      },
+    },
+  },
+
+  // Nitro server configuration
+  nitro: {
+    routeRules: {
+      '/game-assets/**': {
+        headers: {
+          'X-Frame-Options': 'SAMEORIGIN',
+        },
+      },
+    },
+  },
+
   // Site configuration for SEO
   site: {
     url: 'https://www.meskipun.win',

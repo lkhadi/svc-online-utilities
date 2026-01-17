@@ -40,6 +40,7 @@ const navLinks = [
   { label: 'Features', path: '/#features' },
   { label: 'Blog', path: '/blog' },
   { label: 'Tools', path: '/tools' },
+  { label: 'Games', path: '/games' },
 ]
 </script>
 
