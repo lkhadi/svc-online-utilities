@@ -33,6 +33,14 @@ export default defineNuxtConfig({
         },
       },
     },
+    // Include game-assets in production build
+    publicAssets: [
+      {
+        dir: 'public/game-assets',
+        baseURL: '/game-assets',
+        maxAge: 60 * 60 * 24 * 365, // 1 year cache
+      },
+    ],
   },
 
   // Site configuration for SEO
