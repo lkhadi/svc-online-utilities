@@ -65,9 +65,8 @@ function onGameLoad() {
 }
 
 function restartGame() {
-  if (gameFrame.value) {
-    gameFrame.value.src = gameFrame.value.src
-    loading.value = true
+  if (gameFrame.value?.contentWindow) {
+    gameFrame.value.contentWindow.postMessage({ type: 'newGame' }, '*')
   }
 }
 
