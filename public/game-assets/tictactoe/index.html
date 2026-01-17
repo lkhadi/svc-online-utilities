@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .game-container {
+      max-width: 100%;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 15px;
+      width: 100%;
+    }
+
+    .mode-selector {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .mode-btn {
+      padding: 10px 20px;
+      border: 2px solid #6366f1;
+      background: white;
+      color: #6366f1;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-size: 0.9rem;
+    }
+
+    .mode-btn:hover {
+      background: #6366f1;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .mode-btn.active {
+      background: #6366f1;
+      color: white;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .settings-panel {
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      width: 100%;
+      max-width: 450px;
+    }
+
+    .settings-panel.hidden {
+      display: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .difficulty-selector {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .difficulty-btn {
+      padding: 8px 16px;
+      border: 2px solid #0ea5e9;
+      background: white;
+      color: #0ea5e9;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-size: 0.875rem;
+    }
+
+    .difficulty-btn:hover {
+      background: #0ea5e9;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .difficulty-btn.active {
+      background: #0ea5e9;
+      color: white;
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+    }
+
+    /* Online multiplayer panel */
+    .online-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .online-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .online-btn {
+      padding: 12px 24px;
+      border: 2px solid #10b981;
+      background: white;
+      color: #10b981;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-size: 0.9rem;
+    }
+
+    .online-btn:hover:not(:disabled) {
+      background: #10b981;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .online-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .online-btn.primary {
+      background: #10b981;
+      color: white;
+    }
+
+    .online-btn.primary:hover:not(:disabled) {
+      background: #059669;
+    }
+
+    .room-input-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .room-input {
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      width: 140px;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+
+    .room-input:focus {
+      outline: none;
+      border-color: #10b981;
+    }
+
+    .room-code-display {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      padding: 15px 25px;
+      border-radius: 12px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-align: center;
+    }
+
+    .room-code-display small {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      opacity: 0.9;
+      margin-bottom: 5px;
+    }
+
+    .status-message {
+      color: #64748b;
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .status-message.error {
+      color: #ef4444;
+    }
+
+    .status-message.success {
+      color: #10b981;
+    }
+
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+
+    .connection-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ef4444;
+    }
+
+    .connection-dot.connected {
+      background: #10b981;
+    }
+
+    .player-info {
+      display: flex;
+      justify-content: space-between;
+      padding: 15px;
+      background: white;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      width: 100%;
+      max-width: 450px;
+    }
+
+    .player {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #64748b;
+      transition: all 0.2s ease;
+    }
+
+    .player.active {
+      color: #6366f1;
+      transform: scale(1.05);
+    }
+
+    .player.waiting {
+      opacity: 0.5;
+    }
+
+    .player-symbol {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      background: #f8fafc;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .player.active .player-symbol {
+      background: #6366f1;
+      color: white;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      width: 100%;
+      max-width: 400px;
+      aspect-ratio: 1;
+      margin-bottom: 15px;
+    }
+
+    .cell {
+      background: white;
+      border: none;
+      border-radius: 12px;
+      font-size: clamp(3rem, 10vw, 5rem);
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .cell:hover:not(:disabled) {
+      background: #f8fafc;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .cell.x {
+      color: #6366f1;
+    }
+
+    .cell.o {
+      color: #0ea5e9;
+    }
+
+    .cell:disabled {
+      cursor: not-allowed;
+    }
+
+    .cell.winning {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white !important;
+      animation: pulse 0.5s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-content h2 {
+      font-size: 2rem;
+      margin-bottom: 15px;
+      color: #0f172a;
+    }
+
+    .modal-content p {
+      font-size: 1.125rem;
+      color: #64748b;
+      margin-bottom: 25px;
+      line-height: 1.6;
+    }
+
+    .modal-btn {
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #6366f1, #0ea5e9);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .modal-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .leave-btn {
+      margin-top: 15px;
+      padding: 8px 16px;
+      background: transparent;
+      border: 2px solid #ef4444;
+      color: #ef4444;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-size: 0.85rem;
+    }
+
+    .leave-btn:hover {
+      background: #ef4444;
+      color: white;
+    }
+
+    @media (max-width: 450px) {
+      .player-info {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .online-actions {
+        flex-direction: column;
+      }
+
+      .room-input-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <header>
+      <div class="mode-selector">
+        <button class="mode-btn active" data-mode="computer">vs Computer</button>
+        <button class="mode-btn" data-mode="local">2 Players</button>
+        <button class="mode-btn" data-mode="online">Online</button>
+      </div>
+    </header>
+
+    <div id="computer-settings" class="settings-panel">
+      <div class="difficulty-selector">
+        <button class="difficulty-btn active" data-difficulty="easy">Easy</button>
+        <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+        <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+      </div>
+    </div>
+
+    <div id="online-settings" class="settings-panel hidden">
+      <div class="online-panel">
+        <div class="connection-status">
+          <div class="connection-dot" id="connection-dot"></div>
+          <span id="connection-text">Disconnected</span>
+        </div>
+
+        <div id="online-lobby">
+          <div class="online-actions">
+            <button class="online-btn primary" id="create-room-btn">Create Room</button>
+          </div>
+          <div class="room-input-group" style="margin-top: 15px;">
+            <input type="text" class="room-input" id="room-code-input" placeholder="ROOM CODE" maxlength="6">
+            <button class="online-btn" id="join-room-btn">Join</button>
+          </div>
+        </div>
+
+        <div id="online-waiting" class="hidden">
+          <div class="room-code-display">
+            <small>Share this code with your friend</small>
+            <span id="room-code-display">------</span>
+          </div>
+          <p class="status-message" id="waiting-message">Waiting for opponent...</p>
+          <button class="leave-btn" id="leave-room-btn">Leave Room</button>
+        </div>
+
+        <div id="online-playing" class="hidden">
+          <div class="room-code-display" style="font-size: 1rem; padding: 10px 15px;">
+            <small>Room</small>
+            <span id="current-room-code">------</span>
+          </div>
+          <button class="leave-btn" id="leave-game-btn">Leave Game</button>
+        </div>
+
+        <p class="status-message" id="status-message"></p>
+      </div>
+    </div>
+
+    <div class="player-info">
+      <div class="player active" id="player1">
+        <div class="player-symbol">X</div>
+        <span id="player1-name">You</span>
+      </div>
+      <div class="player" id="player2">
+        <div class="player-symbol">O</div>
+        <span id="player2-name">Computer</span>
+      </div>
+    </div>
+
+    <div class="board" id="board"></div>
+
+    <div class="modal" id="game-over-modal">
+      <div class="modal-content">
+        <h2 id="modal-title">Game Over</h2>
+        <p id="modal-message"></p>
+        <button class="modal-btn" id="play-again-btn">Play Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      board: Array(9).fill(null),
+      currentPlayer: 'X',
+      gameActive: true,
+      mode: 'computer',
+      difficulty: 'easy',
+      // Online state
+      ws: null,
+      roomId: null,
+      mySymbol: null,
+      isConnected: false,
+      isInRoom: false
+    };
+
+    const winPatterns = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6]
+    ];
+
+    // WebSocket connection
+    function connectWebSocket() {
+      if (state.ws && state.ws.readyState === WebSocket.OPEN) {
+        return;
+      }
+
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/_ws/tictactoe`;
+
+      state.ws = new WebSocket(wsUrl);
+
+      state.ws.onopen = () => {
+        state.isConnected = true;
+        updateConnectionStatus(true);
+        console.log('WebSocket connected');
+      };
+
+      state.ws.onclose = () => {
+        state.isConnected = false;
+        updateConnectionStatus(false);
+        console.log('WebSocket disconnected');
+
+        // Reset online state
+        state.roomId = null;
+        state.mySymbol = null;
+        state.isInRoom = false;
+        showOnlineLobby();
+
+        // Try to reconnect after 3 seconds if in online mode
+        if (state.mode === 'online') {
+          setTimeout(connectWebSocket, 3000);
+        }
+      };
+
+      state.ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        showStatusMessage('Connection error. Please try again.', 'error');
+      };
+
+      state.ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        handleWebSocketMessage(data);
+      };
+    }
+
+    function disconnectWebSocket() {
+      if (state.ws) {
+        state.ws.close();
+        state.ws = null;
+      }
+      state.isConnected = false;
+      state.roomId = null;
+      state.mySymbol = null;
+      state.isInRoom = false;
+    }
+
+    function handleWebSocketMessage(data) {
+      switch (data.type) {
+        case 'room_created':
+          state.roomId = data.roomId;
+          state.mySymbol = data.symbol;
+          state.isInRoom = true;
+          document.getElementById('room-code-display').textContent = data.roomId;
+          document.getElementById('waiting-message').textContent = data.message;
+          showOnlineWaiting();
+          initOnlineGame();
+          break;
+
+        case 'room_joined':
+          state.roomId = data.roomId;
+          state.mySymbol = data.symbol;
+          state.isInRoom = true;
+          state.board = data.board;
+          state.currentPlayer = data.currentPlayer;
+          state.gameActive = true;
+          document.getElementById('current-room-code').textContent = data.roomId;
+          showOnlinePlaying();
+          updateOnlinePlayerInfo();
+          renderBoard();
+          break;
+
+        case 'opponent_joined':
+          state.board = data.board;
+          state.currentPlayer = data.currentPlayer;
+          state.gameActive = true;
+          document.getElementById('current-room-code').textContent = state.roomId;
+          showOnlinePlaying();
+          updateOnlinePlayerInfo();
+          renderBoard();
+          showStatusMessage('Opponent joined! Game started.', 'success');
+          break;
+
+        case 'move_made':
+          state.board = data.board;
+          state.currentPlayer = data.currentPlayer;
+          updateOnlinePlayerInfo();
+          renderBoard();
+          break;
+
+        case 'game_over':
+          state.board = data.board;
+          state.gameActive = false;
+          renderBoard();
+
+          if (data.winningPattern) {
+            data.winningPattern.forEach(index => {
+              const cell = document.querySelector(`.cell[data-index="${index}"]`);
+              if (cell) cell.classList.add('winning');
+            });
+          }
+
+          let message;
+          if (data.isDraw) {
+            message = "It's a Draw!";
+          } else if (data.winner === state.mySymbol) {
+            message = 'You Win!';
+          } else {
+            message = 'You Lose!';
+          }
+          showModal(message, 'Great game! Would you like to play again?');
+          break;
+
+        case 'game_restarted':
+          state.board = data.board;
+          state.currentPlayer = data.currentPlayer;
+          state.gameActive = data.gameActive;
+          updateOnlinePlayerInfo();
+          renderBoard();
+          break;
+
+        case 'opponent_left':
+          state.gameActive = false;
+          showStatusMessage(data.message, 'error');
+          showModal('Opponent Left', 'Your opponent has left the game.');
+          showOnlineWaiting();
+          document.getElementById('room-code-display').textContent = state.roomId;
+          document.getElementById('waiting-message').textContent = 'Waiting for new opponent...';
+          break;
+
+        case 'error':
+          showStatusMessage(data.message, 'error');
+          break;
+      }
+    }
+
+    function updateConnectionStatus(connected) {
+      const dot = document.getElementById('connection-dot');
+      const text = document.getElementById('connection-text');
+
+      if (connected) {
+        dot.classList.add('connected');
+        text.textContent = 'Connected';
+      } else {
+        dot.classList.remove('connected');
+        text.textContent = 'Disconnected';
+      }
+    }
+
+    function showStatusMessage(message, type = '') {
+      const el = document.getElementById('status-message');
+      el.textContent = message;
+      el.className = 'status-message ' + type;
+
+      if (message) {
+        setTimeout(() => {
+          if (el.textContent === message) {
+            el.textContent = '';
+            el.className = 'status-message';
+          }
+        }, 5000);
+      }
+    }
+
+    function showOnlineLobby() {
+      document.getElementById('online-lobby').classList.remove('hidden');
+      document.getElementById('online-waiting').classList.add('hidden');
+      document.getElementById('online-playing').classList.add('hidden');
+    }
+
+    function showOnlineWaiting() {
+      document.getElementById('online-lobby').classList.add('hidden');
+      document.getElementById('online-waiting').classList.remove('hidden');
+      document.getElementById('online-playing').classList.add('hidden');
+    }
+
+    function showOnlinePlaying() {
+      document.getElementById('online-lobby').classList.add('hidden');
+      document.getElementById('online-waiting').classList.add('hidden');
+      document.getElementById('online-playing').classList.remove('hidden');
+    }
+
+    function createRoom() {
+      if (!state.isConnected) {
+        showStatusMessage('Not connected. Please wait...', 'error');
+        return;
+      }
+
+      state.ws.send(JSON.stringify({ type: 'create_room' }));
+    }
+
+    function joinRoom() {
+      if (!state.isConnected) {
+        showStatusMessage('Not connected. Please wait...', 'error');
+        return;
+      }
+
+      const roomCode = document.getElementById('room-code-input').value.trim().toUpperCase();
+      if (roomCode.length !== 6) {
+        showStatusMessage('Please enter a valid 6-character room code.', 'error');
+        return;
+      }
+
+      state.ws.send(JSON.stringify({ type: 'join_room', roomId: roomCode }));
+    }
+
+    function leaveRoom() {
+      if (state.ws && state.roomId) {
+        state.ws.send(JSON.stringify({ type: 'leave_room', roomId: state.roomId }));
+      }
+      state.roomId = null;
+      state.mySymbol = null;
+      state.isInRoom = false;
+      showOnlineLobby();
+      initGame();
+    }
+
+    function initOnlineGame() {
+      state.board = Array(9).fill(null);
+      state.currentPlayer = 'X';
+      state.gameActive = false; // Wait for opponent
+      updateOnlinePlayerInfo();
+      renderBoard();
+    }
+
+    function updateOnlinePlayerInfo() {
+      const player1 = document.getElementById('player1');
+      const player2 = document.getElementById('player2');
+      const player1Name = document.getElementById('player1-name');
+      const player2Name = document.getElementById('player2-name');
+
+      if (state.mySymbol === 'X') {
+        player1Name.textContent = 'You (X)';
+        player2Name.textContent = 'Opponent (O)';
+      } else {
+        player1Name.textContent = 'Opponent (X)';
+        player2Name.textContent = 'You (O)';
+      }
+
+      player1.classList.toggle('active', state.currentPlayer === 'X');
+      player2.classList.toggle('active', state.currentPlayer === 'O');
+    }
+
+    function initGame() {
+      state.board = Array(9).fill(null);
+      state.currentPlayer = 'X';
+      state.gameActive = true;
+      renderBoard();
+      updatePlayerInfo();
+    }
+
+    function renderBoard() {
+      const board = document.getElementById('board');
+      board.innerHTML = '';
+
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('button');
+        cell.className = 'cell';
+        cell.dataset.index = i;
+
+        if (state.board[i]) {
+          cell.textContent = state.board[i];
+          cell.classList.add(state.board[i].toLowerCase());
+          cell.disabled = true;
+        }
+
+        cell.addEventListener('click', () => handleCellClick(i));
+        board.appendChild(cell);
+      }
+    }
+
+    function handleCellClick(index) {
+      if (!state.gameActive || state.board[index] || !isMyTurn()) return;
+
+      if (state.mode === 'online') {
+        // Send move to server
+        state.ws.send(JSON.stringify({
+          type: 'make_move',
+          roomId: state.roomId,
+          index: index
+        }));
+      } else {
+        makeMove(index, state.currentPlayer);
+
+        if (state.mode === 'computer' && state.gameActive && state.currentPlayer === 'O') {
+          setTimeout(makeComputerMove, 500);
+        }
+      }
+    }
+
+    function isMyTurn() {
+      if (state.mode === 'computer') {
+        return state.currentPlayer === 'X';
+      }
+      if (state.mode === 'online') {
+        return state.currentPlayer === state.mySymbol;
+      }
+      return true; // In local mode, any player can click
+    }
+
+    function makeMove(index, player) {
+      state.board[index] = player;
+      renderBoard();
+
+      if (checkWin(player)) {
+        endGame(false, player);
+      } else if (state.board.every(cell => cell !== null)) {
+        endGame(true);
+      } else {
+        state.currentPlayer = state.currentPlayer === 'X' ? 'O' : 'X';
+        updatePlayerInfo();
+      }
+    }
+
+    function checkWin(player) {
+      return winPatterns.some(pattern => {
+        const hasWon = pattern.every(index => state.board[index] === player);
+        if (hasWon) {
+          pattern.forEach(index => {
+            const cell = document.querySelector(`.cell[data-index="${index}"]`);
+            if (cell) cell.classList.add('winning');
+          });
+        }
+        return hasWon;
+      });
+    }
+
+    function endGame(isDraw, winner = null) {
+      state.gameActive = false;
+
+      if (isDraw) {
+        showModal("It's a Draw!", 'Both players played evenly. Try again!');
+      } else {
+        let winnerName;
+        if (state.mode === 'computer') {
+          winnerName = winner === 'X' ? 'You win!' : 'Computer wins!';
+        } else {
+          winnerName = `Player ${winner === 'X' ? '1' : '2'} (${winner}) wins!`;
+        }
+        showModal(winnerName, 'Great game! Would you like to play again?');
+      }
+    }
+
+    function makeComputerMove() {
+      if (!state.gameActive) return;
+
+      let move;
+
+      switch (state.difficulty) {
+        case 'easy':
+          move = getRandomMove();
+          break;
+        case 'medium':
+          move = Math.random() > 0.5 ? getBestMove() : getRandomMove();
+          break;
+        case 'hard':
+          move = getBestMove();
+          break;
+        default:
+          move = getRandomMove();
+      }
+
+      if (move !== null) {
+        makeMove(move, 'O');
+      }
+    }
+
+    function getRandomMove() {
+      const availableMoves = state.board
+        .map((cell, index) => cell === null ? index : null)
+        .filter(index => index !== null);
+
+      return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+    }
+
+    function getBestMove() {
+      let bestScore = -Infinity;
+      let bestMove = null;
+
+      for (let i = 0; i < 9; i++) {
+        if (state.board[i] === null) {
+          state.board[i] = 'O';
+          const score = minimax(state.board, 0, false);
+          state.board[i] = null;
+
+          if (score > bestScore) {
+            bestScore = score;
+            bestMove = i;
+          }
+        }
+      }
+
+      return bestMove;
+    }
+
+    function minimax(board, depth, isMaximizing) {
+      if (checkWinner(board, 'O')) return 10 - depth;
+      if (checkWinner(board, 'X')) return depth - 10;
+      if (board.every(cell => cell !== null)) return 0;
+
+      if (isMaximizing) {
+        let bestScore = -Infinity;
+        for (let i = 0; i < 9; i++) {
+          if (board[i] === null) {
+            board[i] = 'O';
+            bestScore = Math.max(bestScore, minimax(board, depth + 1, false));
+            board[i] = null;
+          }
+        }
+        return bestScore;
+      } else {
+        let bestScore = Infinity;
+        for (let i = 0; i < 9; i++) {
+          if (board[i] === null) {
+            board[i] = 'X';
+            bestScore = Math.min(bestScore, minimax(board, depth + 1, true));
+            board[i] = null;
+          }
+        }
+        return bestScore;
+      }
+    }
+
+    function checkWinner(board, player) {
+      return winPatterns.some(pattern =>
+        pattern.every(index => board[index] === player)
+      );
+    }
+
+    function updatePlayerInfo() {
+      const player1 = document.getElementById('player1');
+      const player2 = document.getElementById('player2');
+
+      player1.classList.toggle('active', state.currentPlayer === 'X');
+      player2.classList.toggle('active', state.currentPlayer === 'O');
+
+      if (state.mode === 'computer') {
+        document.getElementById('player1-name').textContent = 'You';
+        document.getElementById('player2-name').textContent = 'Computer';
+      } else if (state.mode === 'local') {
+        document.getElementById('player1-name').textContent = 'Player 1';
+        document.getElementById('player2-name').textContent = 'Player 2';
+      }
+    }
+
+    function showModal(title, message) {
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-message').textContent = message;
+      document.getElementById('game-over-modal').classList.add('show');
+    }
+
+    function hideModal() {
+      document.getElementById('game-over-modal').classList.remove('show');
+    }
+
+    function handleModeChange(event) {
+      const btn = event.target.closest('.mode-btn');
+      if (!btn) return;
+
+      const newMode = btn.dataset.mode;
+
+      // Leave room if switching away from online mode
+      if (state.mode === 'online' && newMode !== 'online') {
+        leaveRoom();
+        disconnectWebSocket();
+      }
+
+      state.mode = newMode;
+
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b === btn));
+
+      const computerSettings = document.getElementById('computer-settings');
+      const onlineSettings = document.getElementById('online-settings');
+
+      if (state.mode === 'computer') {
+        computerSettings.classList.remove('hidden');
+        onlineSettings.classList.add('hidden');
+      } else if (state.mode === 'online') {
+        computerSettings.classList.add('hidden');
+        onlineSettings.classList.remove('hidden');
+        connectWebSocket();
+      } else {
+        computerSettings.classList.add('hidden');
+        onlineSettings.classList.add('hidden');
+      }
+
+      initGame();
+      updatePlayerInfo();
+    }
+
+    function handleDifficultyChange(event) {
+      const btn = event.target.closest('.difficulty-btn');
+      if (!btn) return;
+
+      state.difficulty = btn.dataset.difficulty;
+
+      document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.toggle('active', b === btn));
+
+      initGame();
+    }
+
+    function handlePlayAgain() {
+      hideModal();
+
+      if (state.mode === 'online' && state.isInRoom) {
+        state.ws.send(JSON.stringify({
+          type: 'restart_game',
+          roomId: state.roomId
+        }));
+      } else {
+        initGame();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const modeSelector = document.querySelector('.mode-selector');
+      const difficultySelector = document.querySelector('.difficulty-selector');
+      const playAgainBtn = document.getElementById('play-again-btn');
+      const createRoomBtn = document.getElementById('create-room-btn');
+      const joinRoomBtn = document.getElementById('join-room-btn');
+      const leaveRoomBtn = document.getElementById('leave-room-btn');
+      const leaveGameBtn = document.getElementById('leave-game-btn');
+      const roomCodeInput = document.getElementById('room-code-input');
+
+      modeSelector.addEventListener('click', handleModeChange);
+      difficultySelector.addEventListener('click', handleDifficultyChange);
+      playAgainBtn.addEventListener('click', handlePlayAgain);
+
+      createRoomBtn.addEventListener('click', createRoom);
+      joinRoomBtn.addEventListener('click', joinRoom);
+      leaveRoomBtn.addEventListener('click', leaveRoom);
+      leaveGameBtn.addEventListener('click', leaveRoom);
+
+      // Allow Enter key to join room
+      roomCodeInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          joinRoom();
+        }
+      });
+
+      // Auto-uppercase room code input
+      roomCodeInput.addEventListener('input', (e) => {
+        e.target.value = e.target.value.toUpperCase();
+      });
+
+      initGame();
+    });
+  </script>
+</body>
+</html>

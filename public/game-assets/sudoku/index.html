@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sudoku</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+    }
+
+    .game-container {
+      max-width: 100%;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 10px;
+      width: 100%;
+    }
+
+    .difficulty-selector {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .difficulty-btn {
+      padding: 8px 16px;
+      border: 2px solid #6366f1;
+      background: white;
+      color: #6366f1;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-size: 0.875rem;
+    }
+
+    .difficulty-btn:hover {
+      background: #6366f1;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .difficulty-btn.active {
+      background: #6366f1;
+      color: white;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .game-info {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 15px;
+      background: white;
+      border-radius: 12px;
+      margin: 0 auto 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .timer {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .timer span {
+      color: #6366f1;
+    }
+
+    .notes-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .notes-btn {
+      padding: 6px 12px;
+      border: 2px solid #10b981;
+      background: white;
+      color: #10b981;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.8rem;
+    }
+
+    .notes-btn.active {
+      background: #10b981;
+      color: white;
+    }
+
+    .sudoku-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .sudoku-grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      width: 100%;
+      aspect-ratio: 1;
+      border: 3px solid #333;
+      background: white;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .cell {
+      width: 100%;
+      aspect-ratio: 1;
+      border: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(16px, 4vw, 28px);
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+      position: relative;
+      background: white;
+    }
+
+    .cell:nth-child(3n) {
+      border-right: 2px solid #333;
+    }
+
+    .cell:nth-child(9n) {
+      border-right: none;
+    }
+
+    .cell:nth-child(n+19):nth-child(-n+27),
+    .cell:nth-child(n+46):nth-child(-n+54) {
+      border-bottom: 2px solid #333;
+    }
+
+    .cell.prefilled {
+      background-color: #f0f0f0;
+      color: #333;
+      cursor: default;
+    }
+
+    .cell.selected {
+      background-color: #6366f1 !important;
+      color: white !important;
+    }
+
+    .cell.highlighted {
+      background-color: #e8e8ff;
+    }
+
+    .cell.same-number {
+      background-color: #d4e4f7;
+    }
+
+    .cell.conflict {
+      color: #ef4444;
+    }
+
+    .cell-value {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    .cell-notes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      width: 100%;
+      height: 100%;
+      padding: 2px;
+    }
+
+    .note {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(8px, 1.5vw, 11px);
+      color: #6366f1;
+      font-weight: 500;
+    }
+
+    /* Number popup */
+    .number-popup {
+      position: absolute;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      padding: 8px;
+      z-index: 100;
+      display: none;
+    }
+
+    .number-popup.show {
+      display: block;
+      animation: popIn 0.2s ease;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .popup-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+    }
+
+    .popup-btn {
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: #f8fafc;
+      border-radius: 8px;
+      font-size: 1.25rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      color: #0f172a;
+    }
+
+    .popup-btn:hover {
+      background: #6366f1;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    .popup-btn.erase {
+      grid-column: span 3;
+      width: 100%;
+      background: #fee2e2;
+      color: #ef4444;
+      font-size: 0.9rem;
+    }
+
+    .popup-btn.erase:hover {
+      background: #ef4444;
+      color: white;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-content h2 {
+      font-size: 2rem;
+      margin-bottom: 15px;
+      color: #0f172a;
+    }
+
+    .modal-content p {
+      font-size: 1.125rem;
+      color: #64748b;
+      margin-bottom: 25px;
+      line-height: 1.6;
+    }
+
+    .modal-btn {
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #6366f1, #0ea5e9);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .modal-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    @media (max-width: 400px) {
+      .popup-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <header>
+      <div class="difficulty-selector">
+        <button class="difficulty-btn active" data-difficulty="easy">Easy</button>
+        <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+        <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+      </div>
+      <div class="game-info">
+        <div class="timer">Time: <span id="timer">00:00</span></div>
+        <div class="notes-toggle">
+          <button class="notes-btn" id="notes-btn">Notes</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="sudoku-wrapper">
+      <div class="sudoku-grid" id="sudoku-grid"></div>
+      <div class="number-popup" id="number-popup">
+        <div class="popup-grid">
+          <button class="popup-btn" data-number="1">1</button>
+          <button class="popup-btn" data-number="2">2</button>
+          <button class="popup-btn" data-number="3">3</button>
+          <button class="popup-btn" data-number="4">4</button>
+          <button class="popup-btn" data-number="5">5</button>
+          <button class="popup-btn" data-number="6">6</button>
+          <button class="popup-btn" data-number="7">7</button>
+          <button class="popup-btn" data-number="8">8</button>
+          <button class="popup-btn" data-number="9">9</button>
+          <button class="popup-btn erase" data-number="0">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="game-over-modal">
+      <div class="modal-content">
+        <h2 id="modal-title">Congratulations!</h2>
+        <p id="modal-message"></p>
+        <button class="modal-btn" id="play-again-btn">Play Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      board: [],
+      solution: [],
+      initialBoard: [],
+      notes: [],
+      selectedCell: null,
+      difficulty: 'easy',
+      notesMode: false,
+      timer: 0,
+      timerInterval: null,
+      gameActive: false
+    };
+
+    const config = {
+      difficulties: {
+        easy: { preFilled: 36, name: 'Easy' },
+        medium: { preFilled: 30, name: 'Medium' },
+        hard: { preFilled: 24, name: 'Hard' }
+      },
+      gridSize: 9
+    };
+
+    function createEmptyBoard() {
+      return Array(config.gridSize).fill(null).map(() => Array(config.gridSize).fill(0));
+    }
+
+    function createEmptyNotes() {
+      return Array(config.gridSize).fill(null).map(() =>
+        Array(config.gridSize).fill(null).map(() => new Set())
+      );
+    }
+
+    function getBoxStartRow(row) {
+      return Math.floor(row / 3) * 3;
+    }
+
+    function getBoxStartCol(col) {
+      return Math.floor(col / 3) * 3;
+    }
+
+    function isValidMove(board, row, col, num) {
+      for (let i = 0; i < config.gridSize; i++) {
+        if (board[row][i] === num && i !== col) return false;
+        if (board[i][col] === num && i !== row) return false;
+      }
+
+      const boxRow = getBoxStartRow(row);
+      const boxCol = getBoxStartCol(col);
+
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          if (board[boxRow + i][boxCol + j] === num && (boxRow + i !== row || boxCol + j !== col)) {
+            return false;
+          }
+        }
+      }
+
+      return true;
+    }
+
+    function hasConflict(board, row, col, num) {
+      if (num === 0) return false;
+
+      for (let i = 0; i < config.gridSize; i++) {
+        if (board[row][i] === num && i !== col) return true;
+        if (board[i][col] === num && i !== row) return true;
+      }
+
+      const boxRow = getBoxStartRow(row);
+      const boxCol = getBoxStartCol(col);
+
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          if (board[boxRow + i][boxCol + j] === num && (boxRow + i !== row || boxCol + j !== col)) {
+            return true;
+          }
+        }
+      }
+
+      return false;
+    }
+
+    function fillBox(board, boxRow, boxCol) {
+      const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+      shuffleArray(nums);
+
+      let idx = 0;
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          board[boxRow + i][boxCol + j] = nums[idx++];
+        }
+      }
+    }
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function solveBoard(board) {
+      for (let row = 0; row < config.gridSize; row++) {
+        for (let col = 0; col < config.gridSize; col++) {
+          if (board[row][col] === 0) {
+            for (let num = 1; num <= 9; num++) {
+              if (isValidMove(board, row, col, num)) {
+                board[row][col] = num;
+                if (solveBoard(board)) {
+                  return true;
+                }
+                board[row][col] = 0;
+              }
+            }
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    function generateCompleteBoard() {
+      const board = createEmptyBoard();
+
+      fillBox(board, 0, 0);
+      fillBox(board, 3, 3);
+      fillBox(board, 6, 6);
+
+      solveBoard(board);
+
+      return board;
+    }
+
+    function removeNumbers(board, count) {
+      const puzzle = board.map(row => [...row]);
+      const positions = [];
+
+      for (let i = 0; i < config.gridSize; i++) {
+        for (let j = 0; j < config.gridSize; j++) {
+          positions.push([i, j]);
+        }
+      }
+
+      shuffleArray(positions);
+
+      for (let i = 0; i < count && i < positions.length; i++) {
+        const [row, col] = positions[i];
+        puzzle[row][col] = 0;
+      }
+
+      return puzzle;
+    }
+
+    function generatePuzzle(difficulty) {
+      const completeBoard = generateCompleteBoard();
+      const cellsToRemove = 81 - config.difficulties[difficulty].preFilled;
+      const puzzle = removeNumbers(completeBoard, cellsToRemove);
+
+      return { board: puzzle, solution: completeBoard };
+    }
+
+    function startNewGame(difficulty = state.difficulty) {
+      state.difficulty = difficulty;
+      const { board, solution } = generatePuzzle(difficulty);
+
+      state.board = board.map(row => [...row]);
+      state.solution = solution;
+      state.initialBoard = board.map(row => [...row]);
+      state.notes = createEmptyNotes();
+      state.timer = 0;
+      state.gameActive = true;
+      state.selectedCell = null;
+      state.notesMode = false;
+
+      stopTimer();
+      startTimer();
+      renderBoard();
+      updateTimerDisplay();
+      updateNotesButton();
+      hidePopup();
+
+      document.querySelectorAll('.difficulty-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.difficulty === difficulty);
+      });
+    }
+
+    function renderBoard() {
+      const grid = document.getElementById('sudoku-grid');
+      grid.innerHTML = '';
+
+      for (let row = 0; row < config.gridSize; row++) {
+        for (let col = 0; col < config.gridSize; col++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          cell.dataset.row = row;
+          cell.dataset.col = col;
+
+          if (state.initialBoard[row][col] !== 0) {
+            cell.classList.add('prefilled');
+            cell.innerHTML = `<div class="cell-value">${state.initialBoard[row][col]}</div>`;
+          } else if (state.board[row][col] !== 0) {
+            const value = state.board[row][col];
+            cell.innerHTML = `<div class="cell-value">${value}</div>`;
+            if (hasConflict(state.board, row, col, value)) {
+              cell.classList.add('conflict');
+            }
+          } else if (state.notes[row][col].size > 0) {
+            cell.innerHTML = renderNotes(state.notes[row][col]);
+          }
+
+          if (state.selectedCell && state.selectedCell.row === row && state.selectedCell.col === col) {
+            cell.classList.add('selected');
+          }
+
+          cell.addEventListener('click', (e) => handleCellClick(row, col, e));
+          grid.appendChild(cell);
+        }
+      }
+
+      if (state.selectedCell) {
+        highlightRelatedCells(state.selectedCell.row, state.selectedCell.col);
+      }
+    }
+
+    function renderNotes(notesSet) {
+      let html = '<div class="cell-notes">';
+      for (let i = 1; i <= 9; i++) {
+        html += `<div class="note">${notesSet.has(i) ? i : ''}</div>`;
+      }
+      html += '</div>';
+      return html;
+    }
+
+    function handleCellClick(row, col, event) {
+      if (!state.gameActive) return;
+      if (state.initialBoard[row][col] !== 0) return;
+
+      state.selectedCell = { row, col };
+      renderBoard();
+      showPopup(event, row, col);
+    }
+
+    function showPopup(event, row, col) {
+      const popup = document.getElementById('number-popup');
+      const cell = event.target.closest('.cell');
+      const grid = document.getElementById('sudoku-grid');
+      const wrapper = document.querySelector('.sudoku-wrapper');
+
+      const cellRect = cell.getBoundingClientRect();
+      const wrapperRect = wrapper.getBoundingClientRect();
+
+      let left = cellRect.left - wrapperRect.left + cellRect.width / 2 - 70;
+      let top = cellRect.bottom - wrapperRect.top + 5;
+
+      // Adjust if popup goes off screen
+      const popupWidth = 140;
+      const popupHeight = 180;
+
+      if (left < 0) left = 5;
+      if (left + popupWidth > wrapperRect.width) left = wrapperRect.width - popupWidth - 5;
+      if (top + popupHeight > wrapperRect.height + 200) {
+        top = cellRect.top - wrapperRect.top - popupHeight - 5;
+      }
+
+      popup.style.left = `${left}px`;
+      popup.style.top = `${top}px`;
+      popup.classList.add('show');
+    }
+
+    function hidePopup() {
+      document.getElementById('number-popup').classList.remove('show');
+    }
+
+    function highlightRelatedCells(row, col) {
+      const cells = document.querySelectorAll('.cell');
+      const boxRow = getBoxStartRow(row);
+      const boxCol = getBoxStartCol(col);
+      const selectedNum = state.board[row][col];
+
+      cells.forEach(cell => {
+        const cellRow = parseInt(cell.dataset.row);
+        const cellCol = parseInt(cell.dataset.col);
+
+        if (cellRow === row || cellCol === col ||
+            (cellRow >= boxRow && cellRow < boxRow + 3 &&
+             cellCol >= boxCol && cellCol < boxCol + 3)) {
+          if (!cell.classList.contains('selected')) {
+            cell.classList.add('highlighted');
+          }
+        }
+
+        if (selectedNum !== 0 && state.board[cellRow][cellCol] === selectedNum) {
+          cell.classList.add('same-number');
+        }
+      });
+    }
+
+    function placeNumber(num) {
+      if (!state.gameActive || !state.selectedCell) return;
+
+      const { row, col } = state.selectedCell;
+
+      if (state.initialBoard[row][col] !== 0) return;
+
+      if (state.notesMode && num !== 0) {
+        toggleNote(row, col, num);
+      } else {
+        if (num === 0) {
+          state.board[row][col] = 0;
+          state.notes[row][col].clear();
+        } else {
+          state.board[row][col] = num;
+          state.notes[row][col].clear();
+          removeNoteFromRelated(row, col, num);
+        }
+      }
+
+      renderBoard();
+      hidePopup();
+      checkWinCondition();
+    }
+
+    function toggleNote(row, col, num) {
+      if (state.board[row][col] !== 0) {
+        state.board[row][col] = 0;
+      }
+
+      if (state.notes[row][col].has(num)) {
+        state.notes[row][col].delete(num);
+      } else {
+        state.notes[row][col].add(num);
+      }
+    }
+
+    function removeNoteFromRelated(row, col, num) {
+      const boxRow = getBoxStartRow(row);
+      const boxCol = getBoxStartCol(col);
+
+      for (let i = 0; i < config.gridSize; i++) {
+        state.notes[row][i].delete(num);
+        state.notes[i][col].delete(num);
+      }
+
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          state.notes[boxRow + i][boxCol + j].delete(num);
+        }
+      }
+    }
+
+    function checkWinCondition() {
+      for (let i = 0; i < config.gridSize; i++) {
+        for (let j = 0; j < config.gridSize; j++) {
+          if (state.board[i][j] !== state.solution[i][j]) {
+            return false;
+          }
+        }
+      }
+
+      state.gameActive = false;
+      stopTimer();
+      showModal('Congratulations!', `You completed the puzzle in ${formatTime(state.timer)}!`);
+      return true;
+    }
+
+    function startTimer() {
+      state.timerInterval = setInterval(() => {
+        state.timer++;
+        updateTimerDisplay();
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (state.timerInterval) {
+        clearInterval(state.timerInterval);
+        state.timerInterval = null;
+      }
+    }
+
+    function updateTimerDisplay() {
+      document.getElementById('timer').textContent = formatTime(state.timer);
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function updateNotesButton() {
+      const btn = document.getElementById('notes-btn');
+      btn.classList.toggle('active', state.notesMode);
+    }
+
+    function showModal(title, message) {
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-message').textContent = message;
+      document.getElementById('game-over-modal').classList.add('show');
+    }
+
+    function hideModal() {
+      document.getElementById('game-over-modal').classList.remove('show');
+    }
+
+    function handleKeyPress(event) {
+      if (!state.gameActive || !state.selectedCell) return;
+
+      if (event.key >= '1' && event.key <= '9') {
+        placeNumber(parseInt(event.key));
+      } else if (event.key === 'Backspace' || event.key === 'Delete' || event.key === '0') {
+        placeNumber(0);
+      } else if (event.key === 'n' || event.key === 'N') {
+        state.notesMode = !state.notesMode;
+        updateNotesButton();
+      }
+    }
+
+    function handleDifficultyChange(event) {
+      const btn = event.target.closest('.difficulty-btn');
+      if (!btn) return;
+
+      const difficulty = btn.dataset.difficulty;
+      startNewGame(difficulty);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const grid = document.getElementById('sudoku-grid');
+      const difficultySelector = document.querySelector('.difficulty-selector');
+      const popup = document.getElementById('number-popup');
+      const notesBtn = document.getElementById('notes-btn');
+
+      difficultySelector.addEventListener('click', handleDifficultyChange);
+      document.addEventListener('keydown', handleKeyPress);
+
+      popup.addEventListener('click', (e) => {
+        const btn = e.target.closest('.popup-btn');
+        if (btn) {
+          const number = parseInt(btn.dataset.number);
+          placeNumber(number);
+        }
+      });
+
+      notesBtn.addEventListener('click', () => {
+        state.notesMode = !state.notesMode;
+        updateNotesButton();
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.cell') && !e.target.closest('.number-popup') && !e.target.closest('.notes-btn')) {
+          hidePopup();
+        }
+      });
+
+      document.getElementById('play-again-btn').addEventListener('click', () => {
+        hideModal();
+        startNewGame();
+      });
+
+      startNewGame('easy');
+    });
+  </script>
+</body>
+</html>

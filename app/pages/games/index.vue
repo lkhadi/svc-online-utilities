@@ -43,6 +43,46 @@ useSeoMeta({
 
 const games = [
   {
+    icon: '🧩',
+    title: 'Sudoku',
+    description: 'Classic number puzzle game. Fill the grid so each row, column, and 3x3 box contains digits 1-9.',
+    link: '/games/sudoku',
+    tags: ['Puzzle', 'Logic', 'Brain Training'],
+    bgGradient: 'linear-gradient(135deg, #4a90e2, #357abd)'
+  },
+  {
+    icon: '⭕',
+    title: 'Tic Tac Toe',
+    description: 'Classic two-player game. Get three in a row to win! Play vs Computer or vs Player.',
+    link: '/games/tictactoe',
+    tags: ['Strategy', 'Multiplayer', 'Classic'],
+    bgGradient: 'linear-gradient(135deg, #6366f1, #0ea5e9)'
+  },
+  {
+    icon: '🐍',
+    title: 'Snake',
+    description: 'Guide the snake, eat food, and grow longer. Avoid walls and yourself!',
+    link: '/games/snake',
+    tags: ['Arcade', 'Classic', 'Fast-paced'],
+    bgGradient: 'linear-gradient(135deg, #10b981, #059669)'
+  },
+  {
+    icon: '🔢',
+    title: '2048',
+    description: 'Combine tiles with the same number to create larger numbers and reach 2048!',
+    link: '/games/twentyfourtyeight',
+    tags: ['Puzzle', 'Strategy', 'Addictive'],
+    bgGradient: 'linear-gradient(135deg, #f59e0b, #d97706)'
+  },
+  {
+    icon: '🟡',
+    title: 'Pac-Man',
+    description: 'Eat all dots while avoiding ghosts in this classic arcade game.',
+    link: '/games/pacman',
+    tags: ['Arcade', 'Classic', 'Retro'],
+    bgGradient: 'linear-gradient(135deg, #fbbf24, #f59e0b)'
+  },
+  {
     icon: '🃏',
     title: 'Solitaire',
     description: 'Classic Klondike Solitaire. Drag and drop cards to build foundation piles from Ace to King.',

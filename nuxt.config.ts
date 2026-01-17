@@ -26,6 +26,9 @@ export default defineNuxtConfig({
 
   // Nitro server configuration
   nitro: {
+    experimental: {
+      websocket: true,
+    },
     routeRules: {
       '/game-assets/**': {
         headers: {
