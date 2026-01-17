@@ -251,3 +251,21 @@ ul, ol {
     padding: 0 var(--spacing-md);
   }
 }
+
+/* ==========================================
+   Navigation
+   ========================================== */
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-lg);
+  transition: color var(--transition-fast);
+}
+
+.back-link:hover {
+  color: var(--color-text-primary);
+}

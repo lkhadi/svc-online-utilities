@@ -42,6 +42,12 @@ const tools = [
     link: '/tools/uuid'
   },
   {
+    icon: '💱',
+    title: 'Currency Converter',
+    description: 'Convert between currencies and track exchange rates',
+    link: '/tools/currency-converter'
+  },
+  {
     icon: '🔐',
     title: 'Bcrypt Generator',
     description: 'Generate secure bcrypt password hashes with configurable cost',

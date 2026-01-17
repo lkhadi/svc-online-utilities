@@ -1,6 +1,9 @@
 <template>
   <div class="utility-page">
     <div class="container">
+      <NuxtLink to="/tools" class="back-link">
+        <span class="back-icon">←</span> Back to Tools
+      </NuxtLink>
       <header class="utility-header">
         <span class="utility-tag">Tools</span>
         <h1 class="utility-title">Picture to Base64</h1>

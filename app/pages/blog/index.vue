@@ -9,6 +9,9 @@
         </p>
       </header>
 
+      <!-- Search -->
+      <BlogSearch />
+
       <!-- Filters -->
       <div class="filters" v-if="categories.length || tags.length">
         <div class="filter-group" v-if="categories.length">
