@@ -77,6 +77,48 @@ const tools = [
     description: 'Extract high-quality thumbnails from any YouTube video URL',
     link: '/tools/youtube-thumbnail'
   },
+  {
+    icon: '🗜️',
+    title: 'Image Compressor',
+    description: 'Compress images to reduce file size while maintaining quality',
+    link: '/tools/image-compression'
+  },
+  {
+    icon: '🔄',
+    title: 'Image Format Converter',
+    description: 'Convert images between JPEG, PNG, WebP, and BMP formats',
+    link: '/tools/image-format-converter'
+  },
+  {
+    icon: '📝',
+    title: 'PDF to Word',
+    description: 'Convert PDF documents to editable Word (DOCX) format',
+    link: '/tools/pdf-to-word'
+  },
+  {
+    icon: '🎨',
+    title: 'Color Blindness Simulator',
+    description: 'See how images appear to people with different types of color blindness',
+    link: '/tools/color-blindness-simulator'
+  },
+  {
+    icon: '🔍',
+    title: 'RegEx Tester',
+    description: 'Test, debug, and learn regular expressions with real-time matching',
+    link: '/tools/regex-tester'
+  },
+  {
+    icon: '📱',
+    title: 'QR Code Generator',
+    description: 'Generate QR codes for URLs, text, WiFi, contacts, and more',
+    link: '/tools/qr-code-generator'
+  },
+  {
+    icon: '🔑',
+    title: 'JWT Debugger',
+    description: 'Decode, debug, and verify JSON Web Tokens',
+    link: '/tools/jwt-debugger'
+  },
 ]
 </script>
 
