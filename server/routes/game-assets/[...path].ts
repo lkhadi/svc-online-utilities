@@ -53,7 +53,9 @@ function resolveGameAssetPath(assetPath: string): string | null {
 }
 
 export default defineEventHandler(async (event) => {
-  const path = event.context.params?.path || ''
+  // In Nitro, [...path] returns an array of path segments
+  const pathParam = event.context.params?.path
+  const path = Array.isArray(pathParam) ? pathParam.join('/') : (pathParam || '')
 
   // Prevent directory traversal
   if (path.includes('..')) {
