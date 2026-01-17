@@ -30,24 +30,17 @@ function resolveGameAssetPath(assetPath: string): string | null {
   const cwd = process.cwd()
   const isProduction = process.env.NODE_ENV === 'production'
 
-  // Possible paths in order of priority
   const possiblePaths = isProduction
     ? [
-        // Production: .output/public/game-assets (Nitro output)
         join(cwd, '.output', 'public', 'game-assets', assetPath),
-        // Fallback production path
         join(cwd, 'public', 'game-assets', assetPath),
       ]
     : [
-        // Development: public/game-assets
         join(cwd, 'public', 'game-assets', assetPath),
       ]
 
-  console.log('[game-assets] Checking paths for:', assetPath)
   for (const filePath of possiblePaths) {
-    const exists = existsSync(filePath)
-    console.log('[game-assets]   -', filePath, 'exists:', exists)
-    if (exists) {
+    if (existsSync(filePath)) {
       return filePath
     }
   }
@@ -56,25 +49,9 @@ function resolveGameAssetPath(assetPath: string): string | null {
 }
 
 export default defineEventHandler(async (event) => {
-  // Get path - in Nitro server routes, catch-all returns string with slashes
   const rawPath = event.context.params?.path
-  // Handle if it's an array (some Nitro versions) or string
   const path = Array.isArray(rawPath) ? rawPath.join('/') : String(rawPath || '')
-  // Decode URL-encoded characters
   const decodedPath = decodeURIComponent(path)
-  
-  // Debug logging
-  const cwd = process.cwd()
-  const isProduction = process.env.NODE_ENV === 'production'
-  console.log('[game-assets] Request received:', {
-    rawPath,
-    rawPathType: typeof rawPath,
-    isArray: Array.isArray(rawPath),
-    path,
-    decodedPath,
-    cwd,
-    isProduction
-  })
 
   // Prevent directory traversal
   if (decodedPath.includes('..')) {
@@ -82,18 +59,9 @@ export default defineEventHandler(async (event) => {
   }
 
   const filePath = resolveGameAssetPath(decodedPath)
-  console.log('[game-assets] Resolved file path:', filePath)
 
   if (!filePath) {
-    throw createError({ 
-      statusCode: 404, 
-      message: `File not found: ${decodedPath}`,
-      data: { 
-        requestedPath: decodedPath,
-        cwd,
-        isProduction
-      }
-    })
+    throw createError({ statusCode: 404, message: 'File not found' })
   }
 
   const stat = statSync(filePath)
@@ -110,4 +78,3 @@ export default defineEventHandler(async (event) => {
 
   return sendStream(event, createReadStream(filePath))
 })
-
