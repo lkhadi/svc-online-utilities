@@ -78,7 +78,11 @@ export default defineNuxtConfig({
         { name: 'google-adsense-account', content: 'ca-pub-2104604669547614' },
       ],
       link: [
-        { rel: 'icon', href: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🚀</text></svg>' },
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'icon', type: 'image/png', sizes: '192x192', href: '/favicon-192.png' },
+        { rel: 'icon', type: 'image/png', sizes: '512x512', href: '/favicon-512.png' },
+        { rel: 'apple-touch-icon', href: '/favicon-192.png' },
         // Google Fonts - Inter
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
