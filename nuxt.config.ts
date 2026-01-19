@@ -22,6 +22,12 @@ export default defineNuxtConfig({
         'X-Frame-Options': 'SAMEORIGIN',
       },
     },
+    '/tools/html-to-pdf': {
+      headersOnly: true,
+    },
+    '/tools/markdown-to-html-preview': {
+      headersOnly: true,
+    },
   },
 
   // Nitro server configuration
@@ -93,6 +99,10 @@ export default defineNuxtConfig({
           src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2104604669547614',
           async: true,
           crossorigin: 'anonymous',
+        },
+        {
+          src: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.8.69/pdf.min.mjs',
+          type: 'module',
         },
       ],
     },

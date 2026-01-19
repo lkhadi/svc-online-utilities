@@ -33,32 +33,15 @@
       </div>
 
       <div v-if="qrValue" class="utility-card">
-        <h2>QR Code</h2>
-        <div class="qr-display">
-          <div class="qr-wrapper" :style="{ background: backgroundColor }">
-            <QrcodeVue
-              :value="qrValue"
-              :size="qrSize"
-              :level="errorCorrection"
-              :background="backgroundColor"
-              :foreground="foregroundColor"
-              :margin="margin"
-              :render-as="renderAs"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div v-if="qrValue" class="utility-card">
         <h2>Settings</h2>
         <div class="settings-grid">
           <div class="setting-item">
             <label>Size</label>
-            <input 
-              v-model="qrSize" 
-              type="range" 
-              min="100" 
-              max="500" 
+            <input
+              v-model="qrSize"
+              type="range"
+              min="100"
+              max="500"
               class="slider"
             >
             <span class="value">{{ qrSize }}px</span>
@@ -74,27 +57,27 @@
           </div>
           <div class="setting-item">
             <label>Foreground</label>
-            <input 
-              v-model="foregroundColor" 
-              type="color" 
+            <input
+              v-model="foregroundColor"
+              type="color"
               class="color-picker"
             >
           </div>
           <div class="setting-item">
             <label>Background</label>
-            <input 
-              v-model="backgroundColor" 
-              type="color" 
+            <input
+              v-model="backgroundColor"
+              type="color"
               class="color-picker"
             >
           </div>
           <div class="setting-item">
             <label>Margin</label>
-            <input 
-              v-model="margin" 
-              type="range" 
-              min="0" 
-              max="10" 
+            <input
+              v-model="margin"
+              type="range"
+              min="0"
+              max="10"
               class="slider"
             >
             <span class="value">{{ margin }}</span>
@@ -107,11 +90,82 @@
             </select>
           </div>
         </div>
+
+        <div class="logo-section">
+          <h3>Logo (Optional)</h3>
+          <input
+            ref="logoFileInput"
+            type="file"
+            accept="image/*"
+            class="hidden-input"
+            @change="handleLogoUpload"
+          />
+          <div class="logo-controls">
+            <div v-if="!logoPreview" class="logo-upload-area" @click="triggerLogoUpload">
+              <span class="upload-icon">🖼️</span>
+              <span>Click to upload logo</span>
+              <span class="upload-hint">PNG, JPG, SVG recommended</span>
+            </div>
+            <div v-else class="logo-preview-container">
+              <img :src="logoPreview" alt="Logo preview" class="logo-thumb" />
+              <div class="logo-actions">
+                <button class="btn btn-sm btn-secondary" @click="triggerLogoUpload">
+                  Change
+                </button>
+                <button class="btn btn-sm btn-danger" @click="removeLogo">
+                  Remove
+                </button>
+              </div>
+            </div>
+            <div v-if="logoPreview" class="setting-item logo-size-setting">
+              <label>Logo Size</label>
+              <input
+                v-model="logoSize"
+                type="range"
+                min="10"
+                max="40"
+                class="slider"
+              />
+              <span class="value">{{ logoSize }}%</span>
+            </div>
+          </div>
+          <p v-if="logoPreview" class="logo-tip">
+            High error correction is recommended when using a logo to ensure scannability.
+          </p>
+        </div>
+      </div>
+
+      <div v-if="qrValue" class="utility-card">
+        <h2>QR Code</h2>
+        <div class="qr-display">
+          <div class="qr-wrapper" :style="{ background: backgroundColor }">
+            <QrcodeVue
+              :value="qrValue"
+              :size="qrSize"
+              :level="errorCorrection"
+              :background="backgroundColor"
+              :foreground="foregroundColor"
+              :margin="margin"
+              :render-as="renderAs"
+            />
+            <div
+              v-if="logoPreview"
+              class="logo-overlay"
+              :style="{
+                width: logoSize + '%',
+                height: logoSize + '%',
+                backgroundColor: backgroundColor
+              }"
+            >
+              <img :src="logoPreview" alt="Logo" class="logo-image" />
+            </div>
+          </div>
+        </div>
       </div>
 
       <div v-if="qrValue" class="utility-card actions-section">
         <button class="btn btn-primary" @click="downloadQR">
-          Download {{ renderAs === 'svg' ? 'SVG' : 'PNG' }}
+          Download {{ renderAs === 'svg' && !logoPreview ? 'SVG' : 'PNG' }}
         </button>
         <button class="btn btn-secondary" @click="copyQR">
           Copy to Clipboard
@@ -131,6 +185,12 @@
           <li><strong>Q (Quartile):</strong> 25% of data can be restored</li>
           <li><strong>H (High):</strong> 30% of data can be restored (best for damaged codes)</li>
         </ul>
+        <p><strong>Adding a Logo:</strong></p>
+        <p>
+          You can add a custom logo to the center of your QR code. When adding a logo,
+          High error correction is automatically enabled to ensure the QR code remains scannable.
+          Keep the logo size between 10-30% for best results.
+        </p>
       </section>
     </div>
   </div>
@@ -154,6 +214,12 @@ const backgroundColor = ref('#ffffff')
 const margin = ref(4)
 const renderAs = ref('canvas')
 
+// Logo settings
+const logoFile = ref<File | null>(null)
+const logoPreview = ref<string | null>(null)
+const logoSize = ref(25) // percentage of QR code size
+const logoFileInput = ref<HTMLInputElement | null>(null)
+
 const templates = [
   { name: 'URL', icon: '🌐', value: 'https://example.com' },
   { name: 'WiFi', icon: '📶', value: 'WIFI:S:MyNetwork;T:WPA;P:password;;' },
@@ -172,20 +238,111 @@ function applyTemplate(template: { name: string, icon: string, value: string }) 
   }
 }
 
+// Logo handling functions
+function handleLogoUpload(event: Event) {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+
+  if (file) {
+    if (!file.type.startsWith('image/')) {
+      show('Please upload an image file', 'error')
+      return
+    }
+
+    logoFile.value = file
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      logoPreview.value = e.target?.result as string
+      // Auto-set high error correction when logo is added
+      if (errorCorrection.value !== 'H') {
+        errorCorrection.value = 'H'
+        show('Error correction set to High for better logo compatibility', 'info')
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+function removeLogo() {
+  logoFile.value = null
+  logoPreview.value = null
+  if (logoFileInput.value) {
+    logoFileInput.value.value = ''
+  }
+}
+
+function triggerLogoUpload() {
+  logoFileInput.value?.click()
+}
+
+// Helper to draw logo on canvas
+async function drawLogoOnCanvas(canvas: HTMLCanvasElement): Promise<HTMLCanvasElement> {
+  if (!logoPreview.value) return canvas
+
+  return new Promise((resolve) => {
+    const ctx = canvas.getContext('2d')
+    if (!ctx) {
+      resolve(canvas)
+      return
+    }
+
+    const img = new Image()
+    img.onload = () => {
+      const logoSizePixels = (canvas.width * logoSize.value) / 100
+      const x = (canvas.width - logoSizePixels) / 2
+      const y = (canvas.height - logoSizePixels) / 2
+
+      // Draw white background for logo
+      ctx.fillStyle = backgroundColor.value
+      const padding = 4
+      ctx.fillRect(x - padding, y - padding, logoSizePixels + padding * 2, logoSizePixels + padding * 2)
+
+      // Draw logo
+      ctx.drawImage(img, x, y, logoSizePixels, logoSizePixels)
+      resolve(canvas)
+    }
+    img.onerror = () => resolve(canvas)
+    img.src = logoPreview.value!
+  })
+}
+
 async function downloadQR() {
   try {
     if (renderAs.value === 'svg') {
-      const svgElement = document.querySelector('.qr-wrapper svg')
-      if (!svgElement) return
+      // For SVG, we need to convert to canvas first if there's a logo
+      if (logoPreview.value) {
+        const svgElement = document.querySelector('.qr-wrapper svg') as SVGSVGElement
+        if (!svgElement) return
 
-      const svgData = new XMLSerializer().serializeToString(svgElement)
-      const blob = new Blob([svgData], { type: 'image/svg+xml' })
-      downloadBlob(blob, 'qrcode.svg')
+        // Convert SVG to canvas
+        const canvas = await svgToCanvas(svgElement)
+        const canvasWithLogo = await drawLogoOnCanvas(canvas)
+        canvasWithLogo.toBlob((blob) => {
+          if (blob) {
+            downloadBlob(blob, 'qrcode.png')
+          }
+        }, 'image/png')
+      } else {
+        const svgElement = document.querySelector('.qr-wrapper svg')
+        if (!svgElement) return
+
+        const svgData = new XMLSerializer().serializeToString(svgElement)
+        const blob = new Blob([svgData], { type: 'image/svg+xml' })
+        downloadBlob(blob, 'qrcode.svg')
+      }
     } else {
-      const canvas = document.querySelector('.qr-wrapper canvas') as HTMLCanvasElement
-      if (!canvas) return
+      const originalCanvas = document.querySelector('.qr-wrapper canvas') as HTMLCanvasElement
+      if (!originalCanvas) return
 
-      canvas.toBlob((blob) => {
+      // Create a copy of the canvas to avoid modifying the original
+      const canvas = document.createElement('canvas')
+      canvas.width = originalCanvas.width
+      canvas.height = originalCanvas.height
+      const ctx = canvas.getContext('2d')
+      ctx?.drawImage(originalCanvas, 0, 0)
+
+      const canvasWithLogo = await drawLogoOnCanvas(canvas)
+      canvasWithLogo.toBlob((blob) => {
         if (blob) {
           downloadBlob(blob, 'qrcode.png')
         }
@@ -199,6 +356,28 @@ async function downloadQR() {
   }
 }
 
+// Helper function to convert SVG to Canvas
+async function svgToCanvas(svgElement: SVGSVGElement): Promise<HTMLCanvasElement> {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas')
+    canvas.width = qrSize.value
+    canvas.height = qrSize.value
+    const ctx = canvas.getContext('2d')
+
+    const svgData = new XMLSerializer().serializeToString(svgElement)
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' })
+    const url = URL.createObjectURL(svgBlob)
+
+    const img = new Image()
+    img.onload = () => {
+      ctx?.drawImage(img, 0, 0)
+      URL.revokeObjectURL(url)
+      resolve(canvas)
+    }
+    img.src = url
+  })
+}
+
 function downloadBlob(blob: Blob, filename: string) {
   const link = document.createElement('a')
   link.href = URL.createObjectURL(blob)
@@ -210,18 +389,41 @@ function downloadBlob(blob: Blob, filename: string) {
 async function copyQR() {
   try {
     if (renderAs.value === 'svg') {
-      const svgElement = document.querySelector('.qr-wrapper svg')
-      if (!svgElement) return
+      // For SVG with logo, convert to canvas first
+      if (logoPreview.value) {
+        const svgElement = document.querySelector('.qr-wrapper svg') as SVGSVGElement
+        if (!svgElement) return
 
-      const svgData = new XMLSerializer().serializeToString(svgElement)
-      const blob = new Blob([svgData], { type: 'image/svg+xml' })
-      const item = new ClipboardItem({ 'image/svg+xml': blob })
-      await navigator.clipboard.write([item])
+        const canvas = await svgToCanvas(svgElement)
+        const canvasWithLogo = await drawLogoOnCanvas(canvas)
+        canvasWithLogo.toBlob(async (blob) => {
+          if (blob) {
+            const item = new ClipboardItem({ 'image/png': blob })
+            await navigator.clipboard.write([item])
+          }
+        }, 'image/png')
+      } else {
+        const svgElement = document.querySelector('.qr-wrapper svg')
+        if (!svgElement) return
+
+        const svgData = new XMLSerializer().serializeToString(svgElement)
+        const blob = new Blob([svgData], { type: 'image/svg+xml' })
+        const item = new ClipboardItem({ 'image/svg+xml': blob })
+        await navigator.clipboard.write([item])
+      }
     } else {
-      const canvas = document.querySelector('.qr-wrapper canvas') as HTMLCanvasElement
-      if (!canvas) return
+      const originalCanvas = document.querySelector('.qr-wrapper canvas') as HTMLCanvasElement
+      if (!originalCanvas) return
 
-      canvas.toBlob(async (blob) => {
+      // Create a copy of the canvas
+      const canvas = document.createElement('canvas')
+      canvas.width = originalCanvas.width
+      canvas.height = originalCanvas.height
+      const ctx = canvas.getContext('2d')
+      ctx?.drawImage(originalCanvas, 0, 0)
+
+      const canvasWithLogo = await drawLogoOnCanvas(canvas)
+      canvasWithLogo.toBlob(async (blob) => {
         if (blob) {
           const item = new ClipboardItem({ 'image/png': blob })
           await navigator.clipboard.write([item])
@@ -288,6 +490,7 @@ async function copyQR() {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .settings-grid {
@@ -344,5 +547,122 @@ async function copyQR() {
   display: flex;
   gap: 1rem;
   justify-content: center;
+}
+
+/* Logo overlay styles */
+.logo-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+}
+
+.logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Logo section styles */
+.logo-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.logo-section h3 {
+  margin: 0 0 1rem 0;
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+}
+
+.logo-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.hidden-input {
+  display: none;
+}
+
+.logo-upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  gap: 0.5rem;
+}
+
+.logo-upload-area:hover {
+  border-color: var(--color-accent-primary);
+  background: var(--color-bg-glass);
+}
+
+.upload-icon {
+  font-size: 2rem;
+}
+
+.upload-hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.logo-preview-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+}
+
+.logo-thumb {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  background: white;
+}
+
+.logo-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-sm {
+  padding: 0.5rem 0.75rem;
+  font-size: var(--font-size-sm);
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+  border: none;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+.logo-size-setting {
+  flex: 1;
+}
+
+.logo-tip {
+  margin-top: 0.75rem;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-style: italic;
 }
 </style>

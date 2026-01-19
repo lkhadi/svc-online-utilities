@@ -96,6 +96,12 @@ const tools = [
     link: '/tools/pdf-to-word'
   },
   {
+    icon: '🔀',
+    title: 'PDF Merge & Split',
+    description: 'Merge multiple PDFs or split a PDF into separate files',
+    link: '/tools/pdf-merge-split'
+  },
+  {
     icon: '🎨',
     title: 'Color Blindness Simulator',
     description: 'See how images appear to people with different types of color blindness',
@@ -118,6 +124,42 @@ const tools = [
     title: 'JWT Debugger',
     description: 'Decode, debug, and verify JSON Web Tokens',
     link: '/tools/jwt-debugger'
+  },
+  {
+    icon: '📝',
+    title: 'Markdown to HTML',
+    description: 'Write markdown and see live HTML preview with styled export',
+    link: '/tools/markdown-to-html-preview'
+  },
+  {
+    icon: '📄',
+    title: 'HTML to PDF',
+    description: 'Convert HTML content to PDF with customizable settings and templates',
+    link: '/tools/html-to-pdf'
+  },
+  {
+    icon: '🔐',
+    title: 'PDF Protect & Unlock',
+    description: 'Protect PDFs with passwords or remove password protection',
+    link: '/tools/pdf-protect-unlock'
+  },
+  {
+    icon: '✍️',
+    title: 'Title Case & Font Generator',
+    description: 'Convert text to title case and transform with fancy Unicode fonts',
+    link: '/tools/title-case-font-generator'
+  },
+  {
+    icon: '📝',
+    title: 'Online Notepad',
+    description: 'Create, edit, and share notes with auto-save functionality',
+    link: '/tools/online-notepad'
+  },
+  {
+    icon: '⏱️',
+    title: 'Pomodoro Timer',
+    description: 'Boost productivity with the Pomodoro technique using customizable timers',
+    link: '/tools/pomodoro-timer'
   },
 ]
 </script>
