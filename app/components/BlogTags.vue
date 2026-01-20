@@ -9,6 +9,7 @@
         :class="{ active: activeSlug === tag.slug }"
       >
         {{ tag.name }}
+        <span v-if="tag.postCount" class="tag-count">({{ tag.postCount }})</span>
       </NuxtLink>
       <button
         v-if="hasMore"
@@ -28,6 +29,7 @@ interface Tag {
   id: number;
   slug: string;
   name: string;
+  postCount?: number;
 }
 
 const props = defineProps<{
@@ -37,7 +39,7 @@ const props = defineProps<{
 }>();
 
 const expanded = ref(false);
-const limit = props.initialLimit ?? 12;
+const limit = props.initialLimit ?? 10;
 
 const visibleTags = computed(() => {
   if (expanded.value || props.tags.length <= limit) {
@@ -99,5 +101,11 @@ function toggleExpanded() {
   background: var(--color-accent-secondary);
   border-color: var(--color-accent-secondary);
   color: white;
+}
+
+.tag-count {
+  opacity: 0.7;
+  font-size: var(--font-size-xs);
+  margin-left: 2px;
 }
 </style>
