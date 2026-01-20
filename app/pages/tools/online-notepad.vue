@@ -39,7 +39,7 @@
       </div>
 
       <Teleport to="body">
-        <dialog v-if="showDeleteDialog" class="delete-dialog" :open="true">
+        <dialog ref="deleteDialogRef" class="delete-dialog" @close="cancelDelete">
           <div class="dialog-content">
             <h3>Delete Note?</h3>
             <p>Are you sure you want to delete this note? This action cannot be undone.</p>
@@ -156,6 +156,17 @@ function saveNote(note: Note) {
   saveToStorage()
 }
 
+const deleteDialogRef = ref<HTMLDialogElement | null>(null)
+
+watch(showDeleteDialog, async (newValue) => {
+  if (newValue) {
+    await nextTick()
+    deleteDialogRef.value?.showModal()
+  } else {
+    deleteDialogRef.value?.close()
+  }
+})
+
 function confirmDelete() {
   if (currentNote.value?.id) {
     noteToDelete.value = currentNote.value.id
@@ -260,6 +271,7 @@ onMounted(() => {
   padding: 0;
   background: var(--color-bg-primary);
   box-shadow: var(--shadow-lg);
+  margin: auto; /* Fix centering overridden by global reset */
 }
 
 .delete-dialog::backdrop {
