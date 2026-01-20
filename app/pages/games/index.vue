@@ -74,14 +74,7 @@ const games = [
     tags: ['Puzzle', 'Strategy', 'Addictive'],
     bgGradient: 'linear-gradient(135deg, #f59e0b, #d97706)'
   },
-  {
-    icon: '🟡',
-    title: 'Pac-Man',
-    description: 'Eat all dots while avoiding ghosts in this classic arcade game.',
-    link: '/games/pacman',
-    tags: ['Arcade', 'Classic', 'Retro'],
-    bgGradient: 'linear-gradient(135deg, #fbbf24, #f59e0b)'
-  },
+
   {
     icon: '🃏',
     title: 'Solitaire',

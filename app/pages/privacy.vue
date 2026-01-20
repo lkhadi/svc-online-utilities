@@ -58,7 +58,7 @@ useHead({
   title: 'Privacy Policy - meskipun.win',
   meta: [
     { name: 'description', content: 'Privacy Policy for meskipun.win outlining data collection, cookie usage, and advertising practices.' },
-    { name: 'robots', content: 'noindex' } // Often good to noindex administrative pages
+    { name: 'description', content: 'Privacy Policy for meskipun.win outlining data collection, cookie usage, and advertising practices.' }
   ]
 })
 </script>

@@ -9,7 +9,13 @@
       <p class="footer-copyright">
         © {{ currentYear }} <a href="https://github.com/lkhadi" target="_blank" rel="noopener">lkhadi</a>. All rights reserved.
         <span class="mx-2">•</span>
+        <NuxtLink to="/about">About Us</NuxtLink>
+        <span class="mx-2">•</span>
+        <NuxtLink to="/contact">Contact</NuxtLink>
+        <span class="mx-2">•</span>
         <NuxtLink to="/privacy">Privacy Policy</NuxtLink>
+        <span class="mx-2">•</span>
+        <NuxtLink to="/terms">Terms of Service</NuxtLink>
       </p>
     </div>
   </footer>

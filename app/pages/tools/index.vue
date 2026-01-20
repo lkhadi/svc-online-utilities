@@ -161,6 +161,12 @@ const tools = [
     description: 'Boost productivity with the Pomodoro technique using customizable timers',
     link: '/tools/pomodoro-timer'
   },
+  {
+    icon: '🎨',
+    title: 'Color Picker & Converter',
+    description: 'Pick colors and convert between Hex, RGB, HSL, and CMYK formats',
+    link: '/tools/color-picker'
+  },
 ]
 </script>
 
