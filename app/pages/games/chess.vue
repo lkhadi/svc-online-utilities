@@ -5,10 +5,10 @@
         <span class="back-icon">←</span> Back to Games
       </NuxtLink>
       <header class="game-header">
-        <span class="game-tag">Puzzle Shooter</span>
-        <h1 class="game-title">Orb Blaster</h1>
+        <span class="game-tag">Strategy Game</span>
+        <h1 class="game-title">Chess</h1>
         <p class="game-description">
-          Match 3+ orbs of the same color to clear them before they reach the skull!
+          Classic strategy game. Play vs AI with adjustable difficulty, local 2-player, or online multiplayer.
         </p>
       </header>
 
@@ -20,7 +20,7 @@
         <iframe
           v-show="!loading"
           ref="gameFrame"
-          :src="gameSrc"
+          src="/game-assets/chess/index.html"
           class="game-frame"
           @load="onGameLoad"
           allowfullscreen
@@ -39,13 +39,12 @@
       <section class="info-section">
         <h2>How to Play</h2>
         <ul>
-          <li><strong>Objective:</strong> Shoot colored orbs into the chain to match 3+ of the same color. Clear them before they reach the skull!</li>
-          <li><strong>Aim:</strong> Move your mouse or finger to aim the shooter in the center.</li>
-          <li><strong>Shoot:</strong> Click or tap anywhere to fire an orb into the chain.</li>
-          <li><strong>Swap Orbs:</strong> Press Space or click near the shooter to swap your current orb with the next one.</li>
-          <li><strong>Combos:</strong> Chain multiple matches together for bonus points!</li>
-          <li><strong>Power-ups:</strong> Look for special orbs - Bomb (💥), Slow (⏱️), Reverse (⏪), and Wild (⭐)!</li>
-          <li><strong>Difficulty:</strong> Easy starts slower with 4 colors. Hard is faster with 6 colors.</li>
+          <li><strong>vs Computer:</strong> Play against AI with 4 difficulty levels - Easy, Medium, Hard, and Expert (ELO 800-2000+).</li>
+          <li><strong>2 Players:</strong> Play with a friend on the same device - take turns moving pieces.</li>
+          <li><strong>Online:</strong> Play with anyone online! Create a room to get a 6-character code, share it with your friend, and they can join using that code.</li>
+          <li><strong>Game Rules:</strong> All standard chess rules apply, including castling, en passant, and pawn promotion.</li>
+          <li><strong>Win:</strong> Checkmate the opponent's king to win. The game can also end by stalemate (draw), threefold repetition, 50-move rule, or insufficient material.</li>
+          <li><strong>Time Controls:</strong> Choose from 5, 10, 15 minute games, or play with no time limit.</li>
         </ul>
       </section>
     </div>
@@ -54,23 +53,22 @@
 
 <script setup lang="ts">
 useSeoMeta({
-  title: 'Orb Blaster - meskipun.win',
-  description: 'Play Orb Blaster - a free online marble shooter puzzle game. Match 3+ colored orbs to clear them before they reach the end!',
+  title: 'Chess - meskipun.win',
+  description: 'Play classic Chess online for free. vs Computer with 4 AI difficulty levels, local 2 Players, or Online multiplayer with room codes.',
 })
 
 const gameFrame = ref<HTMLIFrameElement | null>(null)
 const loading = ref(true)
 const isFullscreen = ref(false)
-const gameVersion = Date.now()
-const gameSrc = computed(() => `/game-assets/orb-blaster/index.html?v=${gameVersion}`)
 
 function onGameLoad() {
   loading.value = false
 }
 
 function restartGame() {
-  if (gameFrame.value?.contentWindow) {
-    gameFrame.value.contentWindow.postMessage({ type: 'newGame' }, '*')
+  if (gameFrame.value) {
+    gameFrame.value.src = gameFrame.value.src
+    loading.value = true
   }
 }
 
@@ -124,7 +122,7 @@ onMounted(() => {
 .game-tag {
   display: inline-block;
   padding: var(--spacing-xs) var(--spacing-md);
-  background: linear-gradient(135deg, #e94560, #ff6b6b);
+  background: linear-gradient(135deg, #1f2937, #374151);
   border-radius: var(--radius-full);
   font-size: var(--font-size-xs);
   font-weight: 600;
@@ -151,8 +149,8 @@ onMounted(() => {
 .game-container {
   position: relative;
   width: 100%;
+  height: 900px;
   max-width: 1200px;
-  aspect-ratio: 16/9;
   margin: 0 auto var(--spacing-xl);
   background: var(--color-bg-glass);
   border: 1px solid var(--color-border);
@@ -181,7 +179,7 @@ onMounted(() => {
   width: 40px;
   height: 40px;
   border: 3px solid var(--color-border);
-  border-top-color: #e94560;
+  border-top-color: var(--color-accent-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -230,6 +228,10 @@ onMounted(() => {
 @media (max-width: 768px) {
   .game-title {
     font-size: var(--font-size-3xl);
+  }
+
+  .game-container {
+    height: 850px;
   }
 
   .game-controls {

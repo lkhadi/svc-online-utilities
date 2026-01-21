@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Search Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #333;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        select, button {
+            padding: 10px 15px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        select {
+            background: white;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 30px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .game-area {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .grid-container {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .word-grid {
+            display: grid;
+            gap: 2px;
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 10px;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 4px;
+            min-width: 30px;
+            min-height: 30px;
+        }
+
+        .cell:hover {
+            background: #e9ecef;
+        }
+
+        .cell.selected {
+            background: #667eea;
+            color: white;
+        }
+
+        .cell.found {
+            background: #28a745;
+            color: white;
+        }
+
+        .cell.highlighted {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .word-list-container {
+            flex: 0 0 250px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .word-list-container h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .word-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .word-item {
+            padding: 8px 12px;
+            background: white;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .word-item.found {
+            background: #28a745;
+            color: white;
+            text-decoration: line-through;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal-content p {
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        .final-score {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+            }
+
+            .word-list-container {
+                flex: none;
+                width: 100%;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .cell {
+                font-size: 14px;
+                min-width: 25px;
+                min-height: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1 id="game-title">Word Search</h1>
+            <div class="header-controls">
+                <select id="language-select">
+                    <option value="en">English</option>
+                    <option value="id">Bahasa Indonesia</option>
+                </select>
+                <select id="mode-select">
+                    <option value="classic">Classic</option>
+                    <option value="timed">Timed (5 min)</option>
+                    <option value="blitz">Blitz (1 min)</option>
+                    <option value="zen">Zen</option>
+                </select>
+                <select id="difficulty-select">
+                    <option value="beginner">Beginner</option>
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                    <option value="expert">Expert</option>
+                </select>
+                <button id="new-game-btn">New Game</button>
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-label" id="score-label">Score</div>
+                <div class="stat-value" id="score-value">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label" id="timer-label">Time</div>
+                <div class="stat-value" id="timer-value">0:00</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label" id="words-label">Words</div>
+                <div class="stat-value" id="words-value">0/0</div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="grid-container">
+                <div id="word-grid" class="word-grid"></div>
+            </div>
+            <div class="word-list-container">
+                <h3 id="word-list-title">Find these words:</h3>
+                <ul id="word-list" class="word-list"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-over-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title">Game Over!</h2>
+            <p id="modal-message">Congratulations!</p>
+            <div class="final-score" id="final-score">0</div>
+            <button id="play-again-btn">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+    const wordDatabase = {
+        en: {
+            easy: [
+                { word: "CAT", length: 3 }, { word: "DOG", length: 3 }, { word: "SUN", length: 3 },
+                { word: "SKY", length: 3 }, { word: "HAT", length: 3 }, { word: "RED", length: 3 },
+                { word: "BIG", length: 3 }, { word: "RUN", length: 3 }, { word: "FUN", length: 3 },
+                { word: "HOP", length: 3 }, { word: "TOP", length: 3 }, { word: "JOB", length: 3 },
+                { word: "MOP", length: 3 }, { word: "CUP", length: 3 }, { word: "PEN", length: 3 },
+                { word: "BED", length: 3 }, { word: "MAD", length: 3 }, { word: "SAD", length: 3 },
+                { word: "JAM", length: 3 }, { word: "NUT", length: 3 }, { word: "WET", length: 3 },
+                { word: "HOT", length: 3 }, { word: "COLD", length: 4 }, { word: "WARM", length: 4 },
+                { word: "COOL", length: 4 }, { word: "BLUE", length: 4 }, { word: "PINK", length: 4 },
+                { word: "GREEN", length: 5 }, { word: "BROWN", length: 5 }, { word: "BLACK", length: 5 },
+                { word: "WHITE", length: 5 }, { word: "GOLD", length: 4 }
+            ],
+            medium: [
+                { word: "PYTHON", length: 6 }, { word: "RUBY", length: 4 }, { word: "JAVA", length: 4 },
+                { word: "SWIFT", length: 5 }, { word: "KOTLIN", length: 6 }, { word: "GOLANG", length: 6 },
+                { word: "RUST", length: 4 }, { word: "GROOVY", length: 6 }, { word: "SCALA", length: 5 },
+                { word: "LISP", length: 4 }, { word: "PERL", length: 4 }, { word: "TCL", length: 3 },
+                { word: "BASH", length: 4 }, { word: "POWERSHELL", length: 10 }, { word: "ANGULAR", length: 7 },
+                { word: "REACT", length: 5 }, { word: "VUE", length: 3 }, { word: "EMBER", length: 5 },
+                { word: "AURELIA", length: 7 }, { word: "METEOR", length: 6 }, { word: "SPRING", length: 6 },
+                { word: "LARAVEL", length: 7 }, { word: "DJANGO", length: 6 }, { word: "FLASK", length: 5 },
+                { word: "RAILS", length: 5 }, { word: "EXPRESS", length: 7 }, { word: "KOAN", length: 4 },
+                { word: "SAILS", length: 5 }, { word: "HAPI", length: 4 }, { word: "FASTIFY", length: 7 },
+                { word: "NEST", length: 4 }, { word: "NEXUS", length: 5 }, { word: "GRAPHQL", length: 8 }
+            ],
+            hard: [
+                { word: "JAVASCRIPT", length: 10 }, { word: "TYPESCRIPT", length: 10 }, { word: "ASSEMBLY", length: 8 },
+                { word: "FORTRAN", length: 7 }, { word: "COBOL", length: 5 }, { word: "ALGOL", length: 5 },
+                { word: "PASCAL", length: 6 }, { word: "BASIC", length: 5 }, { word: "PROLOG", length: 6 },
+                { word: "HASKELL", length: 7 }, { word: "ERLANG", length: 6 }, { word: "Elixir", length: 7 },
+                { word: "FORTH", length: 5 }, { word: "ADA", length: 3 }, { word: "SIMULA", length: 6 },
+                { word: "SMALLTALK", length: 9 }, { word: "OBERON", length: 6 }, { word: "MODULA", length: 6 },
+                { word: "CLU", length: 3 }, { word: "ALGOL68", length: 7 }, { word: "PL1", length: 3 },
+                { word: "JOVIAL", length: 6 }, { word: "CORAL66", length: 7 }, { word: "APT", length: 3 },
+                { word: "AUTOCODER", length: 9 }, { word: "FLOWMATIC", length: 9 }, { word: "COMTRAN", length: 7 },
+                { word: "MATHMATIC", length: 9 }, { word: "JOSS", length: 4 }, { word: "MUMPS", length: 5 },
+                { word: "GPSS", length: 4 }, { word: "COMIT", length: 5 }, { word: "LISP", length: 4 }
+            ]
+        },
+        id: {
+            mudah: [
+                { word: "KUCING", length: 6 }, { word: "ANJING", length: 6 }, { word: "MATAHARI", length: 8 },
+                { word: "LANGIT", length: 6 }, { word: "TOPI", length: 4 }, { word: "MERAH", length: 5 },
+                { word: "BESAR", length: 5 }, { word: "LARI", length: 4 }, { word: "MAIN", length: 4 },
+                { word: "LONCAT", length: 6 }, { word: "ATAS", length: 4 }, { word: "KERJA", length: 5 },
+                { word: "PEL", length: 3 }, { word: "CANGKIR", length: 8 }, { word: "PENA", length: 4 },
+                { word: "KASUR", length: 5 }, { word: "MARAH", length: 5 }, { word: "SEDA", length: 4 },
+                { word: "SELAI", length: 5 }, { word: "KACANG", length: 6 }, { word: "BASAH", length: 5 },
+                { word: "PANAS", length: 5 }, { word: "DINGIN", length: 6 }, { word: "HANGAT", length: 6 },
+                { word: "SEJUK", length: 5 }, { word: "BIRU", length: 4 }, { word: "UNGU", length: 4 },
+                { word: "HIJAU", length: 5 }, { word: "COKLAT", length: 6 }, { word: "HITAM", length: 5 },
+                { word: "PUTIH", length: 5 }, { word: "EMAS", length: 4 }
+            ],
+            sedang: [
+                { word: "KOMPUTER", length: 8 }, { word: "LAPTOP", length: 6 }, { word: "TELEPON", length: 7 },
+                { word: "SMARTPHONE", length: 10 }, { word: "TABLET", length: 6 }, { word: "MOUSE", length: 5 },
+                { word: "KEYBOARD", length: 8 }, { word: "MONITOR", length: 7 }, { word: "PRINTER", length: 7 },
+                { word: "SCANNER", length: 7 }, { word: "SPEAKER", length: 7 }, { word: "HEADSET", length: 7 },
+                { word: "KAMERA", length: 6 }, { word: "WEBCAM", length: 6 }, { word: "MIKROFON", length: 8 },
+                { word: "HARDDISK", length: 8 }, { word: "USBDRIVE", length: 8 }, { word: "MEMORYCARD", length: 10 },
+                { word: "BATERAI", length: 7 }, { word: "CHARGER", length: 7 }, { word: "ADAPTOR", length: 7 },
+                { word: "ROUTER", length: 6 }, { word: "MODEM", length: 5 }, { word: "KABEL", length: 5 },
+                { word: "PROYEKTOR", length: 9 }, { word: "SCREEN", length: 6 }, { word: "SOFWARE", length: 7 },
+                { word: "HARDWARE", length: 8 }, { word: "OPERATOR", length: 8 }, { word: "DATABASE", length: 8 },
+                { word: "NETWORK", length: 7 }, { word: "INTERNET", length: 8 }, { word: "WEBSITE", length: 7 }
+            ],
+            sulit: [
+                { word: "PEMERINTAHAN", length: 12 }, { word: "KETENAGAKERJAAN", length: 15 }, { word: "PENDIDIKAN", length: 10 },
+                { word: "KESEHATAN", length: 9 }, { word: "PEREKONOMIAN", length: 12 }, { word: "PERDAGANGAN", length: 11 },
+                { word: "PERTANIAN", length: 9 }, { word: "PERINDUSTRIAN", length: 12 }, { word: "PEMBANGUNAN", length: 11 },
+                { word: "INFRASTRUKTUR", length: 13 }, { word: "TELEKOMUNIKASI", length: 14 }, { word: "TRANSPORTASI", length: 12 },
+                { word: "PERTAHANAN", length: 10 }, { word: "KEAMANAN", length: 9 }, { word: "HUKUM", length: 5 },
+                { word: "PERADILAN", length: 9 }, { word: "LEGISLATIF", length: 10 }, { word: "EKSEKUTIF", length: 9 },
+                { word: "YUDIKATIF", length: 9 }, { word: "DEMOKRASI", length: 9 }, { word: "REPUBLIC", length: 8 },
+                { word: "INDONESIA", length: 9 }, { word: "NASIONAL", length: 8 }, { word: "INTERNASIONAL", length: 13 },
+                { word: "KEBIJAKSANAAN", length: 13 }, { word: "REGULASI", length: 8 }, { word: "PERATURAN", length: 9 },
+                { word: "UNDANGUNDANG", length: 12 }, { word: "KONSTITUSI", length: 10 }, { word: "IDEOLOGI", length: 8 },
+                { word: "SOSIAL", length: 6 }, { word: "BUDAYA", length: 6 }, { word: "POLITIK", length: 7 }
+            ]
+        }
+    };
+
+    const difficultyConfig = {
+        beginner: { gridSize: 8, wordCount: 5, directions: [[0,1],[1,0]] },
+        easy: { gridSize: 10, wordCount: 8, directions: [[0,1],[1,0],[1,1]] },
+        medium: { gridSize: 12, wordCount: 12, directions: [[0,1],[1,0],[1,1],[0,-1],[-1,0],[-1,-1],[1,-1],[-1,1]] },
+        hard: { gridSize: 15, wordCount: 15, directions: [[0,1],[1,0],[1,1],[0,-1],[-1,0],[-1,-1],[1,-1],[-1,1]] },
+        expert: { gridSize: 20, wordCount: 20, directions: [[0,1],[1,0],[1,1],[0,-1],[-1,0],[-1,-1],[1,-1],[-1,1]] }
+    };
+
+    const translations = {
+        en: {
+            gameTitle: "Word Search",
+            scoreLabel: "Score",
+            timerLabel: "Time",
+            wordsLabel: "Words",
+            wordListTitle: "Find these words:",
+            newGameBtn: "New Game",
+            gameOverTitle: "Game Over!",
+            modalMessage: "Congratulations!",
+            playAgainBtn: "Play Again"
+        },
+        id: {
+            gameTitle: "Cari Kata",
+            scoreLabel: "Skor",
+            timerLabel: "Waktu",
+            wordsLabel: "Kata",
+            wordListTitle: "Cari kata-kata ini:",
+            newGameBtn: "Permainan Baru",
+            gameOverTitle: "Permainan Selesai!",
+            modalMessage: "Selamat!",
+            playAgainBtn: "Main Lagi"
+        }
+    };
+
+    class LocalizationManager {
+        constructor() {
+            this.currentLanguage = 'en';
+        }
+
+        setLanguage(lang) {
+            this.currentLanguage = lang;
+        }
+
+        get(key) {
+            return translations[this.currentLanguage][key] || key;
+        }
+
+        getDifficultyLevel(difficulty) {
+            const levels = {
+                en: { beginner: 'Beginner', easy: 'Easy', medium: 'Medium', hard: 'Hard', expert: 'Expert' },
+                id: { beginner: 'Pemula', easy: 'Mudah', medium: 'Sedang', hard: 'Sulit', expert: 'Ahli' }
+            };
+            return levels[this.currentLanguage][difficulty] || difficulty;
+        }
+
+        getGameMode(mode) {
+            const modes = {
+                en: { classic: 'Classic', timed: 'Timed (5 min)', blitz: 'Blitz (1 min)', zen: 'Zen' },
+                id: { classic: 'Klasik', timed: 'Terbatas (5 menit)', blitz: 'Kilat (1 menit)', zen: 'Zen' }
+            };
+            return modes[this.currentLanguage][mode] || mode;
+        }
+
+        getWordDifficulty(difficulty) {
+            const levels = {
+                en: { easy: 'Easy', medium: 'Medium', hard: 'Hard' },
+                id: { easy: 'Mudah', medium: 'Sedang', hard: 'Sulit' }
+            };
+            return levels[this.currentLanguage][difficulty] || difficulty;
+        }
+    }
+
+    class WordSearchGenerator {
+        constructor(gridSize, words, allowedDirections) {
+            this.gridSize = gridSize;
+            this.words = words;
+            this.allowedDirections = allowedDirections;
+            this.grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(''));
+            this.placedWords = [];
+            this.randomGenerator = this.seededRandom(Date.now());
+        }
+
+        seededRandom(seed) {
+            return function() {
+                seed = (seed * 9301 + 49297) % 233280;
+                return seed / 233280;
+            };
+        }
+
+        shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(this.randomGenerator() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        isValidPosition(row, col) {
+            return row >= 0 && row < this.gridSize && col >= 0 && col < this.gridSize;
+        }
+
+        canPlaceWord(word, startRow, startCol, direction) {
+            const [dRow, dCol] = direction;
+            
+            for (let i = 0; i < word.length; i++) {
+                const newRow = startRow + i * dRow;
+                const newCol = startCol + i * dCol;
+                
+                if (!this.isValidPosition(newRow, newCol)) {
+                    return false;
+                }
+                
+                const cell = this.grid[newRow][newCol];
+                if (cell !== '' && cell !== word[i]) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        placeWord(word, startRow, startCol, direction) {
+            const [dRow, dCol] = direction;
+            const positions = [];
+            
+            for (let i = 0; i < word.length; i++) {
+                const newRow = startRow + i * dRow;
+                const newCol = startCol + i * dCol;
+                this.grid[newRow][newCol] = word[i];
+                positions.push({ row: newRow, col: newCol });
+            }
+            
+            return positions;
+        }
+
+        placeWordLinear(word) {
+            const attempts = this.gridSize * this.gridSize;
+            const shuffledDirections = this.shuffle([...this.allowedDirections]);
+            
+            for (const direction of shuffledDirections) {
+                for (let attempt = 0; attempt < attempts; attempt++) {
+                    const startRow = Math.floor(this.randomGenerator() * this.gridSize);
+                    const startCol = Math.floor(this.randomGenerator() * this.gridSize);
+                    
+                    if (this.canPlaceWord(word, startRow, startCol, direction)) {
+                        const positions = this.placeWord(word, startRow, startCol, direction);
+                        return {
+                            word: word,
+                            positions: positions,
+                            direction: direction,
+                            found: false
+                        };
+                    }
+                }
+            }
+            
+            return null;
+        }
+
+        generate() {
+            const shuffledWords = this.shuffle([...this.words]);
+            
+            for (const wordObj of shuffledWords) {
+                const result = this.placeWordLinear(wordObj.word);
+                if (result) {
+                    this.placedWords.push(result);
+                }
+            }
+            
+            this.fillEmptyCells();
+            return {
+                grid: this.grid,
+                placedWords: this.placedWords
+            };
+        }
+
+        fillEmptyCells() {
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            
+            for (let row = 0; row < this.gridSize; row++) {
+                for (let col = 0; col < this.gridSize; col++) {
+                    if (this.grid[row][col] === '') {
+                        this.grid[row][col] = letters[Math.floor(this.randomGenerator() * letters.length)];
+                    }
+                }
+            }
+        }
+    }
+
+    class ScoreTracker {
+        constructor() {
+            this.totalScore = 0;
+            this.wordsFound = 0;
+            this.penaltyCount = 0;
+            this.startTime = 0;
+            this.wordTimes = [];
+        }
+
+        start() {
+            this.startTime = Date.now();
+        }
+
+        calculateWordScore(word, timeTaken) {
+            let score = word.length * 10;
+            
+            const timeBonus = Math.max(0, 5000 - timeTaken) / 100;
+            score += timeBonus;
+            
+            let multiplier = 1;
+            if (word.length > 8) {
+                multiplier = 1.5;
+            } else if (word.length > 5) {
+                multiplier = 1.2;
+            }
+            
+            return Math.floor(score * multiplier);
+        }
+
+        addWord(word, timeTaken) {
+            const wordScore = this.calculateWordScore(word, timeTaken);
+            this.totalScore += wordScore;
+            this.wordsFound++;
+            this.wordTimes.push(timeTaken);
+            return wordScore;
+        }
+
+        applyPenalty() {
+            this.penaltyCount++;
+            this.totalScore = Math.max(0, this.totalScore - 50);
+            return -50;
+        }
+
+        getScore() {
+            return this.totalScore;
+        }
+
+        getWordsFound() {
+            return this.wordsFound;
+        }
+
+        getPenaltyCount() {
+            return this.penaltyCount;
+        }
+
+        reset() {
+            this.totalScore = 0;
+            this.wordsFound = 0;
+            this.penaltyCount = 0;
+            this.startTime = 0;
+            this.wordTimes = [];
+        }
+    }
+
+    class GameTimer {
+        constructor() {
+            this.timeLimit = null;
+            this.timeRemaining = 0;
+            this.isRunning = false;
+            this.intervalId = null;
+            this.elapsedTime = 0;
+            this.startTime = 0;
+            this.mode = 'classic';
+        }
+
+        setMode(mode) {
+            this.mode = mode;
+            switch (mode) {
+                case 'timed':
+                    this.timeLimit = 5 * 60;
+                    break;
+                case 'blitz':
+                    this.timeLimit = 60;
+                    break;
+                case 'zen':
+                case 'classic':
+                    this.timeLimit = null;
+                    break;
+                default:
+                    this.timeLimit = null;
+            }
+        }
+
+        start() {
+            this.isRunning = true;
+            this.startTime = Date.now();
+            this.elapsedTime = 0;
+            
+            if (this.timeLimit) {
+                this.timeRemaining = this.timeLimit;
+            }
+            
+            this.intervalId = setInterval(() => {
+                this.update();
+            }, 100);
+        }
+
+        stop() {
+            this.isRunning = false;
+            if (this.intervalId) {
+                clearInterval(this.intervalId);
+                this.intervalId = null;
+            }
+        }
+
+        reset() {
+            this.stop();
+            this.elapsedTime = 0;
+            this.startTime = 0;
+            if (this.timeLimit) {
+                this.timeRemaining = this.timeLimit;
+            }
+        }
+
+        update() {
+            const now = Date.now();
+            this.elapsedTime = Math.floor((now - this.startTime) / 1000);
+            
+            if (this.timeLimit) {
+                this.timeRemaining = Math.max(0, this.timeLimit - this.elapsedTime);
+                
+                if (this.timeRemaining <= 0) {
+                    this.stop();
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        getTimeString() {
+            const time = this.timeLimit ? this.timeRemaining : this.elapsedTime;
+            const minutes = Math.floor(time / 60);
+            const seconds = time % 60;
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        getTimeInSeconds() {
+            return this.timeLimit ? this.timeRemaining : this.elapsedTime;
+        }
+
+        isExpired() {
+            return this.timeLimit !== null && this.timeRemaining <= 0;
+        }
+
+        hasTimeLimit() {
+            return this.timeLimit !== null;
+        }
+
+        getTimeRemaining() {
+            return this.timeRemaining;
+        }
+
+        getElapsedTime() {
+            return this.elapsedTime;
+        }
+    }
+
+    class WordSelector {
+        constructor(gridElement, onSelectionComplete) {
+            this.gridElement = gridElement;
+            this.onSelectionComplete = onSelectionComplete;
+            this.isSelecting = false;
+            this.startCell = null;
+            this.currentCell = null;
+            this.selectedCells = [];
+            this.gridSize = 0;
+            this.cells = [];
+            this.touchStartX = 0;
+            this.touchStartY = 0;
+        }
+
+        initialize(gridSize) {
+            this.gridSize = gridSize;
+            this.gridElement.innerHTML = '';
+            this.gridElement.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+            this.cells = [];
+            
+            for (let row = 0; row < gridSize; row++) {
+                const rowCells = [];
+                for (let col = 0; col < gridSize; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    this.gridElement.appendChild(cell);
+                    rowCells.push(cell);
+                }
+                this.cells.push(rowCells);
+            }
+            
+            this.addEventListeners();
+        }
+
+        addEventListeners() {
+            this.gridElement.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+            document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+            document.addEventListener('mouseup', (e) => this.handleMouseUp(e));
+            
+            this.gridElement.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: false });
+            document.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false });
+            document.addEventListener('touchend', (e) => this.handleTouchEnd(e), { passive: false });
+        }
+
+        removeEventListeners() {
+            this.gridElement.removeEventListener('mousedown', (e) => this.handleMouseDown(e));
+            document.removeEventListener('mousemove', (e) => this.handleMouseMove(e));
+            document.removeEventListener('mouseup', (e) => this.handleMouseUp(e));
+            
+            this.gridElement.removeEventListener('touchstart', (e) => this.handleTouchStart(e));
+            document.removeEventListener('touchmove', (e) => this.handleTouchMove(e));
+            document.removeEventListener('touchend', (e) => this.handleTouchEnd(e));
+        }
+
+        getCellFromEvent(e) {
+            const target = e.target.closest('.cell');
+            if (!target) return null;
+            
+            const row = parseInt(target.dataset.row);
+            const col = parseInt(target.dataset.col);
+            return { cell: target, row, col };
+        }
+
+        handleMouseDown(e) {
+            e.preventDefault();
+            const result = this.getCellFromEvent(e);
+            if (!result) return;
+            
+            this.isSelecting = true;
+            this.startCell = result;
+            this.currentCell = result;
+            this.updateSelection();
+        }
+
+        handleMouseMove(e) {
+            if (!this.isSelecting) return;
+            
+            const result = this.getCellFromEvent(e);
+            if (!result) return;
+            
+            this.currentCell = result;
+            this.updateSelection();
+        }
+
+        handleMouseUp(e) {
+            if (!this.isSelecting) return;
+            
+            this.isSelecting = false;
+            this.completeSelection();
+        }
+
+        handleTouchStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            this.touchStartX = touch.clientX;
+            this.touchStartY = touch.clientY;
+            
+            const result = this.getCellFromEvent(e);
+            if (!result) return;
+            
+            this.isSelecting = true;
+            this.startCell = result;
+            this.currentCell = result;
+            this.updateSelection();
+        }
+
+        handleTouchMove(e) {
+            if (!this.isSelecting) return;
+            e.preventDefault();
+            
+            const touch = e.touches[0];
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+            
+            if (!target || !target.classList.contains('cell')) return;
+            
+            const row = parseInt(target.dataset.row);
+            const col = parseInt(target.dataset.col);
+            
+            this.currentCell = { cell: target, row, col };
+            this.updateSelection();
+        }
+
+        handleTouchEnd(e) {
+            if (!this.isSelecting) return;
+            e.preventDefault();
+            
+            this.isSelecting = false;
+            this.completeSelection();
+        }
+
+        updateSelection() {
+            this.clearHighlight();
+            
+            if (!this.startCell || !this.currentCell) return;
+            
+            const cells = this.getLineCells(this.startCell, this.currentCell);
+            
+            if (cells) {
+                this.selectedCells = cells;
+                cells.forEach(({ row, col }) => {
+                    this.cells[row][col].classList.add('selected');
+                });
+            } else {
+                this.selectedCells = [];
+            }
+        }
+
+        getLineCells(start, end) {
+            const dRow = end.row - start.row;
+            const dCol = end.col - start.col;
+            
+            if (dRow === 0 && dCol === 0) {
+                return [{ row: start.row, col: start.col }];
+            }
+            
+            const steps = Math.max(Math.abs(dRow), Math.abs(dCol));
+            const stepRow = dRow === 0 ? 0 : dRow / Math.abs(dRow);
+            const stepCol = dCol === 0 ? 0 : dCol / Math.abs(dCol);
+            
+            if (dRow !== 0 && dCol !== 0 && Math.abs(dRow) !== Math.abs(dCol)) {
+                return null;
+            }
+            
+            const cells = [];
+            for (let i = 0; i <= steps; i++) {
+                cells.push({
+                    row: start.row + i * stepRow,
+                    col: start.col + i * stepCol
+                });
+            }
+            
+            return cells;
+        }
+
+        clearHighlight() {
+            this.selectedCells.forEach(({ row, col }) => {
+                this.cells[row][col].classList.remove('selected', 'highlighted');
+            });
+            this.selectedCells = [];
+        }
+
+        completeSelection() {
+            const word = this.selectedCells.map(({ row, col }) => {
+                return this.cells[row][col].textContent;
+            }).join('');
+            
+            const reverseWord = word.split('').reverse().join('');
+            
+            this.onSelectionComplete({
+                word: word,
+                reverseWord: reverseWord,
+                cells: [...this.selectedCells]
+            });
+            
+            this.clearHighlight();
+            this.startCell = null;
+            this.currentCell = null;
+        }
+
+        updateGrid(letters, foundWords) {
+            for (let row = 0; row < this.gridSize; row++) {
+                for (let col = 0; col < this.gridSize; col++) {
+                    this.cells[row][col].textContent = letters[row][col];
+                }
+            }
+            
+            foundWords.forEach(wordObj => {
+                if (wordObj.found) {
+                    wordObj.positions.forEach(({ row, col }) => {
+                        this.cells[row][col].classList.add('found');
+                    });
+                }
+            });
+        }
+
+        highlightFoundWord(positions) {
+            positions.forEach(({ row, col }) => {
+                this.cells[row][col].classList.add('found');
+            });
+        }
+
+        highlightInvalidSelection() {
+            this.selectedCells.forEach(({ row, col }) => {
+                this.cells[row][col].classList.add('highlighted');
+            });
+            setTimeout(() => {
+                this.clearHighlight();
+            }, 500);
+        }
+
+        reset() {
+            this.clearHighlight();
+            this.isSelecting = false;
+            this.startCell = null;
+            this.currentCell = null;
+        }
+    }
+
+    class GameState {
+        constructor() {
+            this.localization = new LocalizationManager();
+            this.scoreTracker = new ScoreTracker();
+            this.timer = new GameTimer();
+            this.wordSelector = null;
+            this.currentGrid = null;
+            this.placedWords = [];
+            this.gameMode = 'classic';
+            this.difficulty = 'beginner';
+            this.language = 'en';
+            this.isGameOver = false;
+            this.isPaused = false;
+        }
+
+        initialize() {
+            const gridElement = document.getElementById('word-grid');
+            this.wordSelector = new WordSelector(gridElement, (selection) => this.handleSelection(selection));
+            this.setupEventListeners();
+            this.updateUI();
+        }
+
+        setupEventListeners() {
+            document.getElementById('language-select').addEventListener('change', (e) => {
+                this.language = e.target.value;
+                this.localization.setLanguage(this.language);
+                this.updateUI();
+            });
+
+            document.getElementById('mode-select').addEventListener('change', (e) => {
+                this.gameMode = e.target.value;
+            });
+
+            document.getElementById('difficulty-select').addEventListener('change', (e) => {
+                this.difficulty = e.target.value;
+            });
+
+            document.getElementById('new-game-btn').addEventListener('click', () => {
+                this.startNewGame();
+            });
+
+            document.getElementById('play-again-btn').addEventListener('click', () => {
+                document.getElementById('game-over-modal').classList.remove('show');
+                this.startNewGame();
+            });
+        }
+
+        getWordDifficulty() {
+            const mapping = {
+                beginner: 'easy',
+                easy: 'easy',
+                medium: 'medium',
+                hard: 'hard',
+                expert: 'hard'
+            };
+            return mapping[this.difficulty] || 'easy';
+        }
+
+        startNewGame() {
+            this.isGameOver = false;
+            this.isPaused = false;
+            this.scoreTracker.reset();
+            this.timer.setMode(this.gameMode);
+            this.timer.reset();
+            
+            const config = difficultyConfig[this.difficulty];
+            const wordDifficulty = this.getWordDifficulty();
+            const availableWords = wordDatabase[this.language][wordDifficulty];
+            
+            const shuffledWords = [...availableWords].sort(() => Math.random() - 0.5);
+            const selectedWords = shuffledWords.slice(0, Math.min(config.wordCount, availableWords.length));
+            
+            const words = selectedWords.map(w => w.word);
+            
+            const generator = new WordSearchGenerator(config.gridSize, words, config.directions);
+            const result = generator.generate();
+            
+            this.currentGrid = result.grid;
+            this.placedWords = result.placedWords;
+            
+            this.wordSelector.initialize(config.gridSize);
+            this.wordSelector.updateGrid(this.currentGrid, this.placedWords);
+            
+            this.updateWordList();
+            this.updateStats();
+            
+            this.timer.start();
+            this.scoreTracker.start();
+            
+            this.startGameLoop();
+        }
+
+        startGameLoop() {
+            const gameLoop = setInterval(() => {
+                if (this.isGameOver || this.isPaused) {
+                    clearInterval(gameLoop);
+                    return;
+                }
+                
+                this.timer.update();
+                this.updateStats();
+                
+                if (this.timer.isExpired()) {
+                    this.endGame(false);
+                    clearInterval(gameLoop);
+                }
+            }, 100);
+        }
+
+        handleSelection(selection) {
+            if (this.isGameOver || this.isPaused) return;
+            
+            const foundWord = this.placedWords.find(w => 
+                (w.word === selection.word || w.word === selection.reverseWord) && !w.found
+            );
+            
+            if (foundWord) {
+                const timeTaken = this.timer.getElapsedTime() * 1000;
+                const score = this.scoreTracker.addWord(foundWord.word, timeTaken);
+                
+                foundWord.found = true;
+                this.wordSelector.highlightFoundWord(foundWord.positions);
+                this.updateWordList();
+                this.updateStats();
+                
+                if (this.checkAllWordsFound()) {
+                    this.endGame(true);
+                }
+            } else {
+                this.scoreTracker.applyPenalty();
+                this.wordSelector.highlightInvalidSelection();
+                this.updateStats();
+            }
+        }
+
+        checkAllWordsFound() {
+            return this.placedWords.every(w => w.found);
+        }
+
+        updateWordList() {
+            const listElement = document.getElementById('word-list');
+            listElement.innerHTML = '';
+            
+            this.placedWords.forEach(wordObj => {
+                const li = document.createElement('li');
+                li.className = 'word-item' + (wordObj.found ? ' found' : '');
+                li.textContent = wordObj.word;
+                listElement.appendChild(li);
+            });
+        }
+
+        updateStats() {
+            document.getElementById('score-value').textContent = this.scoreTracker.getScore();
+            document.getElementById('timer-value').textContent = this.timer.getTimeString();
+            document.getElementById('words-value').textContent = 
+                `${this.scoreTracker.getWordsFound()}/${this.placedWords.length}`;
+        }
+
+        updateUI() {
+            document.getElementById('game-title').textContent = this.localization.get('gameTitle');
+            document.getElementById('score-label').textContent = this.localization.get('scoreLabel');
+            document.getElementById('timer-label').textContent = this.localization.get('timerLabel');
+            document.getElementById('words-label').textContent = this.localization.get('wordsLabel');
+            document.getElementById('word-list-title').textContent = this.localization.get('wordListTitle');
+            document.getElementById('new-game-btn').textContent = this.localization.get('newGameBtn');
+            document.getElementById('modal-title').textContent = this.localization.get('gameOverTitle');
+            document.getElementById('modal-message').textContent = this.localization.get('modalMessage');
+            document.getElementById('play-again-btn').textContent = this.localization.get('playAgainBtn');
+        }
+
+        endGame(won) {
+            this.isGameOver = true;
+            this.timer.stop();
+            
+            document.getElementById('modal-title').textContent = won ? 
+                (this.language === 'id' ? 'Selamat!' : 'Congratulations!') : 
+                this.localization.get('gameOverTitle');
+            
+            document.getElementById('modal-message').textContent = won ?
+                (this.language === 'id' ? 'Anda menemukan semua kata!' : 'You found all the words!') :
+                (this.language === 'id' ? 'Waktu habis!' : 'Time\'s up!');
+            
+            document.getElementById('final-score').textContent = this.scoreTracker.getScore();
+            document.getElementById('game-over-modal').classList.add('show');
+        }
+
+        pause() {
+            if (this.isGameOver) return;
+            this.isPaused = true;
+            this.timer.stop();
+        }
+
+        resume() {
+            if (this.isGameOver || !this.isPaused) return;
+            this.isPaused = false;
+            this.timer.start();
+        }
+
+        getGridSize() {
+            return difficultyConfig[this.difficulty].gridSize;
+        }
+
+        getWordCount() {
+            return difficultyConfig[this.difficulty].wordCount;
+        }
+
+        getCurrentScore() {
+            return this.scoreTracker.getScore();
+        }
+
+        getTimeRemaining() {
+            return this.timer.getTimeRemaining();
+        }
+
+        isGameRunning() {
+            return !this.isGameOver && !this.isPaused;
+        }
+
+        getFoundWords() {
+            return this.placedWords.filter(w => w.found);
+        }
+
+        getRemainingWords() {
+            return this.placedWords.filter(w => !w.found);
+        }
+    }
+
+    const gameState = new GameState();
+    gameState.initialize();
+    gameState.startNewGame();
+    </script>
+</body>
+</html>

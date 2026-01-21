@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "ESNext",
+    "jsx": "preserve",
+    "strict": true,
+    "paths": {
+      "@/*": ["./app/*"]
+    }
+  },
+  "include": ["./app/**/*.ts", "./phaser-config.ts", "./vite.config.ts", "./module.ts"],
+  "exclude": ["node_modules"]
+}

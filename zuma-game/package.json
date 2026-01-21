@@ -1,0 +1,23 @@
+{
+  "name": "zuma-game",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "npm run build"
+  },
+  "dependencies": {
+    "nuxt": "^3.12.4",
+    "phaser": "^3.60.0",
+    "vue": "^3.4.29"
+  },
+  "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.11.4",
+    "typescript": "^5.5.4",
+    "vue-tsc": "^2.0.14"
+  }
+}

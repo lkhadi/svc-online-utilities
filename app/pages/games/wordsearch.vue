@@ -5,10 +5,10 @@
         <span class="back-icon">←</span> Back to Games
       </NuxtLink>
       <header class="game-header">
-        <span class="game-tag">Puzzle Shooter</span>
-        <h1 class="game-title">Orb Blaster</h1>
+        <span class="game-tag">Puzzle Game</span>
+        <h1 class="game-title">Word Search</h1>
         <p class="game-description">
-          Match 3+ orbs of the same color to clear them before they reach the skull!
+          Find hidden words in the letter grid. Supports English and Bahasa Indonesia!
         </p>
       </header>
 
@@ -20,7 +20,7 @@
         <iframe
           v-show="!loading"
           ref="gameFrame"
-          :src="gameSrc"
+          src="/game-assets/wordsearch/index.html"
           class="game-frame"
           @load="onGameLoad"
           allowfullscreen
@@ -39,13 +39,12 @@
       <section class="info-section">
         <h2>How to Play</h2>
         <ul>
-          <li><strong>Objective:</strong> Shoot colored orbs into the chain to match 3+ of the same color. Clear them before they reach the skull!</li>
-          <li><strong>Aim:</strong> Move your mouse or finger to aim the shooter in the center.</li>
-          <li><strong>Shoot:</strong> Click or tap anywhere to fire an orb into the chain.</li>
-          <li><strong>Swap Orbs:</strong> Press Space or click near the shooter to swap your current orb with the next one.</li>
-          <li><strong>Combos:</strong> Chain multiple matches together for bonus points!</li>
-          <li><strong>Power-ups:</strong> Look for special orbs - Bomb (💥), Slow (⏱️), Reverse (⏪), and Wild (⭐)!</li>
-          <li><strong>Difficulty:</strong> Easy starts slower with 4 colors. Hard is faster with 6 colors.</li>
+          <li><strong>Objective:</strong> Find all the hidden words in the grid of letters.</li>
+          <li><strong>Controls:</strong> Click and drag to select words horizontally, vertically, or diagonally. Words can be forward or backward.</li>
+          <li><strong>Languages:</strong> Play in English or Bahasa Indonesia - select your language from the dropdown menu.</li>
+          <li><strong>Difficulty:</strong> Choose from Easy, Medium, or Hard grid sizes.</li>
+          <li><strong>Progress:</strong> Track your time and word completion. Found words are crossed off the list.</li>
+          <li><strong>Win:</strong> Find all the words to complete the puzzle!</li>
         </ul>
       </section>
     </div>
@@ -54,23 +53,22 @@
 
 <script setup lang="ts">
 useSeoMeta({
-  title: 'Orb Blaster - meskipun.win',
-  description: 'Play Orb Blaster - a free online marble shooter puzzle game. Match 3+ colored orbs to clear them before they reach the end!',
+  title: 'Word Search - meskipun.win',
+  description: 'Play Word Search puzzle game in English or Bahasa Indonesia. Find hidden words in the letter grid.',
 })
 
 const gameFrame = ref<HTMLIFrameElement | null>(null)
 const loading = ref(true)
 const isFullscreen = ref(false)
-const gameVersion = Date.now()
-const gameSrc = computed(() => `/game-assets/orb-blaster/index.html?v=${gameVersion}`)
 
 function onGameLoad() {
   loading.value = false
 }
 
 function restartGame() {
-  if (gameFrame.value?.contentWindow) {
-    gameFrame.value.contentWindow.postMessage({ type: 'newGame' }, '*')
+  if (gameFrame.value) {
+    gameFrame.value.src = gameFrame.value.src
+    loading.value = true
   }
 }
 
@@ -124,7 +122,7 @@ onMounted(() => {
 .game-tag {
   display: inline-block;
   padding: var(--spacing-xs) var(--spacing-md);
-  background: linear-gradient(135deg, #e94560, #ff6b6b);
+  background: linear-gradient(135deg, #667eea, #764ba2);
   border-radius: var(--radius-full);
   font-size: var(--font-size-xs);
   font-weight: 600;
@@ -151,8 +149,7 @@ onMounted(() => {
 .game-container {
   position: relative;
   width: 100%;
-  max-width: 1200px;
-  aspect-ratio: 16/9;
+  max-width: 900px;
   margin: 0 auto var(--spacing-xl);
   background: var(--color-bg-glass);
   border: 1px solid var(--color-border);
@@ -162,7 +159,7 @@ onMounted(() => {
 
 .game-frame {
   width: 100%;
-  height: 100%;
+  height: 900px;
   border: none;
 }
 
@@ -175,13 +172,14 @@ onMounted(() => {
   justify-content: center;
   gap: var(--spacing-md);
   color: var(--color-text-secondary);
+  height: 600px;
 }
 
 .loading-spinner {
   width: 40px;
   height: 40px;
   border: 3px solid var(--color-border);
-  border-top-color: #e94560;
+  border-top-color: var(--color-accent-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -230,6 +228,18 @@ onMounted(() => {
 @media (max-width: 768px) {
   .game-title {
     font-size: var(--font-size-3xl);
+  }
+
+  .game-container {
+    aspect-ratio: unset;
+  }
+
+  .game-frame {
+    height: 850px;
+  }
+
+  .game-loading {
+    height: 500px;
   }
 
   .game-controls {

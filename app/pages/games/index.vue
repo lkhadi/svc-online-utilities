@@ -43,6 +43,22 @@ useSeoMeta({
 
 const games = [
   {
+    icon: '🔤',
+    title: 'Word Search',
+    description: 'Find hidden words in letter grid. Supports English and Bahasa Indonesia!',
+    link: '/games/wordsearch',
+    tags: ['Puzzle', 'Word Game', 'Educational'],
+    bgGradient: 'linear-gradient(135deg, #667eea, #764ba2)'
+  },
+  {
+    icon: '♟️',
+    title: 'Chess',
+    description: 'Classic strategy game. Play vs AI with adjustable difficulty, local 2-player, or online multiplayer.',
+    link: '/games/chess',
+    tags: ['Strategy', 'Multiplayer', 'Board Game'],
+    bgGradient: 'linear-gradient(135deg, #1f2937, #374151)'
+  },
+  {
     icon: '🔮',
     title: 'Orb Blaster',
     description: 'Match 3+ colored orbs to clear them before they reach the skull! A fun marble shooter puzzle.',
@@ -102,7 +118,7 @@ const games = [
   {
     icon: '🐧',
     title: 'SuperTux',
-    description: 'Jump and run through levels as Tux the penguin. A classic 2D platformer adventure.',
+    description: 'Jump and run through levels as Tux penguin. A classic 2D platformer adventure.',
     link: '/games/supertux',
     tags: ['Platformer', 'Adventure', 'Action'],
     bgGradient: 'linear-gradient(135deg, #1e3a8a, #3b82f6)'
