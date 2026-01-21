@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Orb Blaster</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      touch-action: none;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      overflow: hidden;
+    }
+
+    .game-container {
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #e94560, #ff6b6b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+      letter-spacing: -0.02em;
+    }
+
+    .game-info {
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      margin-bottom: 10px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat label {
+      display: block;
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat span {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #e94560;
+    }
+
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      margin: 0 auto;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    #game-canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: linear-gradient(180deg, #1a1a2e 0%, #0f0f23 100%);
+    }
+
+    .game-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 10, 30, 0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      gap: 15px;
+      padding: 20px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .game-overlay.hidden {
+      display: none;
+    }
+
+    .game-overlay h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #e94560, #ff6b6b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .game-overlay p {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.7);
+      max-width: 300px;
+    }
+
+    .start-btn, .btn {
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #e94560, #ff6b6b);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .start-btn:hover, .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(233, 69, 96, 0.4);
+    }
+
+    .difficulty-selector {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .difficulty-btn {
+      padding: 8px 16px;
+      border: 2px solid #e94560;
+      background: transparent;
+      color: #e94560;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-size: 0.8rem;
+    }
+
+    .difficulty-btn:hover, .difficulty-btn.active {
+      background: #e94560;
+      color: white;
+    }
+
+    .controls-hint {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 8px;
+    }
+
+    .next-orb-preview {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .next-orb-preview label {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.6);
+      text-transform: uppercase;
+    }
+
+    #next-orb-canvas {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      max-width: 350px;
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-content h2 {
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, #e94560, #ff6b6b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .modal-content p {
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 10px;
+    }
+
+    .modal-content .final-score {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #e94560;
+      margin: 15px 0;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .power-up-indicator {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 5px 15px;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 20px;
+      color: #00ff88;
+      font-size: 0.8rem;
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .power-up-indicator.active {
+      opacity: 1;
+    }
+
+    @media (max-height: 700px) {
+      h1 { font-size: 1.4rem; }
+      .game-info { padding: 8px; }
+      .stat span { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <header>
+      <h1>Orb Blaster</h1>
+      <div class="difficulty-selector">
+        <button class="difficulty-btn active" data-difficulty="easy">Easy</button>
+        <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+        <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+      </div>
+    </header>
+
+    <div class="game-info">
+      <div class="stat">
+        <label>Score</label>
+        <span id="score">0</span>
+      </div>
+      <div class="stat">
+        <label>Level</label>
+        <span id="level">1</span>
+      </div>
+      <div class="next-orb-preview">
+        <label>Next</label>
+        <canvas id="next-orb-canvas" width="30" height="30"></canvas>
+      </div>
+      <div class="stat">
+        <label>Combo</label>
+        <span id="combo">x1</span>
+      </div>
+    </div>
+
+    <div class="canvas-container">
+      <canvas id="game-canvas" width="700" height="500"></canvas>
+      <div class="power-up-indicator" id="power-up-indicator"></div>
+      <div class="game-overlay" id="start-overlay">
+        <h2>Orb Blaster</h2>
+        <p>Match 3+ orbs of the same color to clear them. Don't let the orbs reach the skull!</p>
+        <button class="start-btn" id="start-btn">Start Game</button>
+        <div class="controls-hint">
+          Click/tap to shoot | Move mouse/finger to aim<br>
+          Press Space or click the swap area to swap orbs
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="game-over-modal">
+    <div class="modal-content">
+      <h2 id="modal-title">Game Over</h2>
+      <p>The orbs reached the end!</p>
+      <div class="final-score" id="final-score">0</div>
+      <p>Level reached: <strong id="final-level">1</strong></p>
+      <div class="modal-buttons">
+        <button class="btn" id="play-again-btn">Play Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Game Configuration
+    const CONFIG = {
+      easy: { speed: 0.3, spawnRate: 180, colors: 4 },
+      medium: { speed: 0.5, spawnRate: 140, colors: 5 },
+      hard: { speed: 0.7, spawnRate: 100, colors: 6 }
+    };
+
+    // Orb Colors - vibrant and distinct
+    const ORB_COLORS = [
+      { main: '#ff4757', glow: '#ff6b7a', name: 'red' },
+      { main: '#2ed573', glow: '#7bed9f', name: 'green' },
+      { main: '#1e90ff', glow: '#70a1ff', name: 'blue' },
+      { main: '#ffa502', glow: '#ffbe4d', name: 'orange' },
+      { main: '#a55eea', glow: '#cd84f1', name: 'purple' },
+      { main: '#00d2d3', glow: '#48dbdb', name: 'cyan' }
+    ];
+
+    // Power-up types
+    const POWER_UPS = {
+      BOMB: { color: '#ff0000', symbol: '💥', effect: 'Destroys nearby orbs' },
+      SLOW: { color: '#00ffff', symbol: '⏱️', effect: 'Slows chain movement' },
+      REVERSE: { color: '#ff00ff', symbol: '⏪', effect: 'Reverses chain briefly' },
+      WILD: { color: '#ffffff', symbol: '⭐', effect: 'Matches any color' }
+    };
+
+    class OrbBlasterGame {
+      constructor() {
+        this.canvas = document.getElementById('game-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.nextOrbCanvas = document.getElementById('next-orb-canvas');
+        this.nextOrbCtx = this.nextOrbCanvas.getContext('2d');
+
+        this.width = this.canvas.width;
+        this.height = this.canvas.height;
+        this.orbRadius = 18;
+        this.shooterPos = { x: this.width / 2, y: this.height / 2 };
+
+        this.difficulty = 'easy';
+        this.score = 0;
+        this.level = 1;
+        this.combo = 1;
+        this.highScore = parseInt(localStorage.getItem('orbBlasterHighScore')) || 0;
+
+        this.chain = [];
+        this.projectile = null;
+        this.shooterAngle = 0;
+        this.currentOrb = null;
+        this.nextOrb = null;
+
+        this.path = [];
+        this.pathLength = 0;
+        this.gameRunning = false;
+        this.gameOver = false;
+        this.spawnCounter = 0;
+        this.chainProgress = 0;
+
+        this.activePowerUp = null;
+        this.powerUpTimer = 0;
+
+        this.particles = [];
+        this.comboTimer = 0;
+
+        this.init();
+      }
+
+      init() {
+        this.setupEventListeners();
+        this.generatePath();
+        this.drawStartScreen();
+      }
+
+      setupEventListeners() {
+        // Difficulty buttons
+        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            this.difficulty = e.target.dataset.difficulty;
+          });
+        });
+
+        // Start button
+        document.getElementById('start-btn').addEventListener('click', () => this.startGame());
+        document.getElementById('play-again-btn').addEventListener('click', () => this.restartGame());
+
+        // Mouse/touch controls
+        this.canvas.addEventListener('mousemove', (e) => this.handleAim(e));
+        this.canvas.addEventListener('touchmove', (e) => {
+          e.preventDefault();
+          this.handleAim(e.touches[0]);
+        });
+
+        this.canvas.addEventListener('click', (e) => this.handleShoot(e));
+        this.canvas.addEventListener('touchend', (e) => {
+          e.preventDefault();
+          this.handleShoot(e.changedTouches[0]);
+        });
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+          if (e.code === 'Space' && this.gameRunning) {
+            e.preventDefault();
+            this.swapOrbs();
+          }
+        });
+
+        // Handle messages from parent (iframe communication)
+        window.addEventListener('message', (e) => {
+          if (e.data.type === 'newGame') {
+            this.restartGame();
+          }
+        });
+
+        // Resize handling
+        window.addEventListener('resize', () => this.handleResize());
+        this.handleResize();
+      }
+
+      handleResize() {
+        const container = this.canvas.parentElement;
+        const maxWidth = Math.min(700, container.clientWidth);
+        const scale = maxWidth / 700;
+        this.canvas.style.width = `${maxWidth}px`;
+        this.canvas.style.height = `${500 * scale}px`;
+      }
+
+      generatePath() {
+        // Create a spiral path for the orbs
+        this.path = [];
+        const centerX = this.width / 2;
+        const centerY = this.height / 2;
+
+        // Spiral parameters
+        const startRadius = 220;
+        const endRadius = 60;
+        const turns = 2.5;
+        const points = 400;
+
+        for (let i = 0; i < points; i++) {
+          const t = i / points;
+          const angle = t * turns * Math.PI * 2 + Math.PI / 2;
+          const radius = startRadius - (startRadius - endRadius) * t;
+
+          const x = centerX + Math.cos(angle) * radius;
+          const y = centerY + Math.sin(angle) * radius;
+
+          this.path.push({ x, y, angle });
+        }
+
+        this.pathLength = this.path.length;
+      }
+
+      startGame() {
+        document.getElementById('start-overlay').classList.add('hidden');
+        this.gameRunning = true;
+        this.gameOver = false;
+        this.score = 0;
+        this.level = 1;
+        this.combo = 1;
+        this.chain = [];
+        this.particles = [];
+        this.chainProgress = 0;
+        this.spawnCounter = 0;
+        this.projectile = null;
+        this.activePowerUp = null;
+
+        this.currentOrb = this.generateOrb();
+        this.nextOrb = this.generateOrb();
+        this.drawNextOrb();
+
+        this.updateUI();
+        this.gameLoop();
+      }
+
+      restartGame() {
+        document.getElementById('game-over-modal').classList.remove('show');
+        this.startGame();
+      }
+
+      generateOrb() {
+        const config = CONFIG[this.difficulty];
+        const colorIndex = Math.floor(Math.random() * config.colors);
+
+        // Small chance for power-up orb
+        if (Math.random() < 0.03) {
+          const powerUpKeys = Object.keys(POWER_UPS);
+          const powerUp = powerUpKeys[Math.floor(Math.random() * powerUpKeys.length)];
+          return { colorIndex: -1, powerUp };
+        }
+
+        return { colorIndex };
+      }
+
+      drawNextOrb() {
+        this.nextOrbCtx.clearRect(0, 0, 30, 30);
+        if (this.nextOrb.powerUp) {
+          this.drawPowerUpOrb(this.nextOrbCtx, 15, 15, 12, this.nextOrb.powerUp);
+        } else {
+          this.drawOrb(this.nextOrbCtx, 15, 15, 12, this.nextOrb.colorIndex);
+        }
+      }
+
+      swapOrbs() {
+        if (this.currentOrb && this.nextOrb) {
+          [this.currentOrb, this.nextOrb] = [this.nextOrb, this.currentOrb];
+          this.drawNextOrb();
+        }
+      }
+
+      handleAim(e) {
+        if (!this.gameRunning) return;
+
+        const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.width / rect.width;
+        const scaleY = this.height / rect.height;
+
+        const mouseX = (e.clientX - rect.left) * scaleX;
+        const mouseY = (e.clientY - rect.top) * scaleY;
+
+        this.shooterAngle = Math.atan2(
+          mouseY - this.shooterPos.y,
+          mouseX - this.shooterPos.x
+        );
+      }
+
+      handleShoot(e) {
+        if (!this.gameRunning || this.projectile) return;
+
+        const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.width / rect.width;
+        const scaleY = this.height / rect.height;
+
+        const clickX = (e.clientX - rect.left) * scaleX;
+        const clickY = (e.clientY - rect.top) * scaleY;
+
+        // Check if clicking on swap area (near shooter)
+        const distToShooter = Math.hypot(clickX - this.shooterPos.x, clickY - this.shooterPos.y);
+        if (distToShooter < 30) {
+          this.swapOrbs();
+          return;
+        }
+
+        const speed = 12;
+        this.projectile = {
+          x: this.shooterPos.x,
+          y: this.shooterPos.y,
+          vx: Math.cos(this.shooterAngle) * speed,
+          vy: Math.sin(this.shooterAngle) * speed,
+          ...this.currentOrb
+        };
+
+        this.currentOrb = this.nextOrb;
+        this.nextOrb = this.generateOrb();
+        this.drawNextOrb();
+      }
+
+      spawnOrb() {
+        if (this.chain.length === 0 || this.chain[0].pathIndex > 1) {
+          const orb = this.generateOrb();
+          orb.pathIndex = 0;
+          orb.offset = 0;
+          this.chain.unshift(orb);
+        }
+      }
+
+      updateChain() {
+        const config = CONFIG[this.difficulty];
+        let speed = config.speed;
+
+        // Apply power-up effects
+        if (this.activePowerUp === 'SLOW') {
+          speed *= 0.3;
+        } else if (this.activePowerUp === 'REVERSE') {
+          speed = -speed * 0.5;
+        }
+
+        // Move chain along path
+        for (let i = 0; i < this.chain.length; i++) {
+          const orb = this.chain[i];
+          orb.pathIndex += speed;
+
+          // Ensure proper spacing
+          if (i > 0) {
+            const prevOrb = this.chain[i - 1];
+            const minDist = this.orbRadius * 2.1;
+
+            if (orb.pathIndex < prevOrb.pathIndex + minDist / 3) {
+              orb.pathIndex = prevOrb.pathIndex + minDist / 3;
+            }
+          }
+
+          // Check if orb reached the end
+          if (orb.pathIndex >= this.pathLength - 1) {
+            this.endGame();
+            return;
+          }
+        }
+      }
+
+      updateProjectile() {
+        if (!this.projectile) return;
+
+        this.projectile.x += this.projectile.vx;
+        this.projectile.y += this.projectile.vy;
+
+        // Check bounds
+        if (this.projectile.x < 0 || this.projectile.x > this.width ||
+            this.projectile.y < 0 || this.projectile.y > this.height) {
+          this.projectile = null;
+          return;
+        }
+
+        // Check collision with chain
+        for (let i = 0; i < this.chain.length; i++) {
+          const orb = this.chain[i];
+          const pathPoint = this.getPathPoint(orb.pathIndex);
+          if (!pathPoint) continue;
+
+          const dist = Math.hypot(
+            this.projectile.x - pathPoint.x,
+            this.projectile.y - pathPoint.y
+          );
+
+          if (dist < this.orbRadius * 2) {
+            this.insertOrb(i);
+            return;
+          }
+        }
+      }
+
+      getPathPoint(index) {
+        const i = Math.floor(index);
+        if (i < 0 || i >= this.path.length - 1) return this.path[Math.max(0, Math.min(i, this.path.length - 1))];
+
+        const t = index - i;
+        const p1 = this.path[i];
+        const p2 = this.path[i + 1];
+
+        return {
+          x: p1.x + (p2.x - p1.x) * t,
+          y: p1.y + (p2.y - p1.y) * t,
+          angle: p1.angle + (p2.angle - p1.angle) * t
+        };
+      }
+
+      insertOrb(targetIndex) {
+        const orb = this.chain[targetIndex];
+        const pathPoint = this.getPathPoint(orb.pathIndex);
+
+        // Determine if inserting before or after
+        const projAngle = Math.atan2(
+          this.projectile.y - pathPoint.y,
+          this.projectile.x - pathPoint.x
+        );
+        const pathAngle = pathPoint.angle;
+        const angleDiff = Math.abs(projAngle - pathAngle);
+
+        const insertBefore = angleDiff < Math.PI / 2 || angleDiff > Math.PI * 1.5;
+        const insertIndex = insertBefore ? targetIndex : targetIndex + 1;
+
+        // Create new orb at insertion point
+        const newOrb = {
+          colorIndex: this.projectile.colorIndex,
+          powerUp: this.projectile.powerUp,
+          pathIndex: orb.pathIndex + (insertBefore ? -this.orbRadius * 2.1 / 3 : this.orbRadius * 2.1 / 3)
+        };
+
+        this.chain.splice(insertIndex, 0, newOrb);
+        this.projectile = null;
+
+        // Handle power-up
+        if (newOrb.powerUp) {
+          this.activatePowerUp(newOrb.powerUp, insertIndex);
+          return;
+        }
+
+        // Check for matches
+        this.checkMatches(insertIndex);
+      }
+
+      activatePowerUp(type, index) {
+        const indicator = document.getElementById('power-up-indicator');
+
+        switch (type) {
+          case 'BOMB':
+            // Remove 5 orbs around the power-up
+            const start = Math.max(0, index - 2);
+            const end = Math.min(this.chain.length, index + 3);
+            const removed = this.chain.splice(start, end - start);
+            removed.forEach((orb, i) => {
+              const p = this.getPathPoint(orb.pathIndex);
+              if (p) this.createExplosion(p.x, p.y);
+            });
+            this.addScore(removed.length * 50);
+            break;
+
+          case 'SLOW':
+            this.activePowerUp = 'SLOW';
+            this.powerUpTimer = 300;
+            indicator.textContent = '⏱️ SLOW MOTION';
+            indicator.classList.add('active');
+            break;
+
+          case 'REVERSE':
+            this.activePowerUp = 'REVERSE';
+            this.powerUpTimer = 180;
+            indicator.textContent = '⏪ REVERSE';
+            indicator.classList.add('active');
+            break;
+
+          case 'WILD':
+            // Wild card - match with adjacent colors
+            this.chain[index].colorIndex = this.findBestWildColor(index);
+            this.checkMatches(index);
+            break;
+        }
+      }
+
+      findBestWildColor(index) {
+        const counts = {};
+
+        // Check neighbors
+        for (let i = Math.max(0, index - 3); i < Math.min(this.chain.length, index + 4); i++) {
+          if (i !== index && this.chain[i].colorIndex >= 0) {
+            counts[this.chain[i].colorIndex] = (counts[this.chain[i].colorIndex] || 0) + 1;
+          }
+        }
+
+        // Return most common adjacent color
+        let bestColor = 0;
+        let maxCount = 0;
+        for (const [color, count] of Object.entries(counts)) {
+          if (count > maxCount) {
+            maxCount = count;
+            bestColor = parseInt(color);
+          }
+        }
+
+        return bestColor;
+      }
+
+      checkMatches(startIndex) {
+        const orb = this.chain[startIndex];
+        if (!orb || orb.colorIndex < 0) return;
+
+        // Find all connected orbs of the same color
+        let matchStart = startIndex;
+        let matchEnd = startIndex;
+
+        // Scan left
+        while (matchStart > 0 && this.chain[matchStart - 1].colorIndex === orb.colorIndex) {
+          matchStart--;
+        }
+
+        // Scan right
+        while (matchEnd < this.chain.length - 1 && this.chain[matchEnd + 1].colorIndex === orb.colorIndex) {
+          matchEnd++;
+        }
+
+        const matchCount = matchEnd - matchStart + 1;
+
+        if (matchCount >= 3) {
+          // Remove matched orbs
+          const removed = this.chain.splice(matchStart, matchCount);
+
+          // Create particles
+          removed.forEach(orb => {
+            const p = this.getPathPoint(orb.pathIndex);
+            if (p) this.createExplosion(p.x, p.y, orb.colorIndex);
+          });
+
+          // Score with combo
+          this.addScore(matchCount * 100 * this.combo);
+          this.combo++;
+          this.comboTimer = 120;
+
+          // Check for chain reaction
+          setTimeout(() => {
+            if (this.chain.length > 0 && matchStart < this.chain.length) {
+              this.checkMatches(Math.min(matchStart, this.chain.length - 1));
+            }
+          }, 100);
+        } else {
+          // No match, reset combo
+          this.combo = 1;
+        }
+
+        this.updateUI();
+      }
+
+      createExplosion(x, y, colorIndex = 0) {
+        const color = colorIndex >= 0 ? ORB_COLORS[colorIndex] : { main: '#ffffff', glow: '#ffffff' };
+
+        for (let i = 0; i < 12; i++) {
+          const angle = (Math.PI * 2 * i) / 12;
+          const speed = 2 + Math.random() * 3;
+
+          this.particles.push({
+            x,
+            y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            radius: 4 + Math.random() * 4,
+            color: color.main,
+            alpha: 1,
+            decay: 0.02 + Math.random() * 0.02
+          });
+        }
+      }
+
+      updateParticles() {
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.alpha -= p.decay;
+          p.radius *= 0.95;
+
+          if (p.alpha <= 0) {
+            this.particles.splice(i, 1);
+          }
+        }
+      }
+
+      addScore(points) {
+        this.score += points;
+
+        // Level up every 2000 points
+        const newLevel = Math.floor(this.score / 2000) + 1;
+        if (newLevel > this.level) {
+          this.level = newLevel;
+          // Increase difficulty slightly
+        }
+
+        if (this.score > this.highScore) {
+          this.highScore = this.score;
+          localStorage.setItem('orbBlasterHighScore', this.highScore);
+        }
+
+        this.updateUI();
+      }
+
+      updateUI() {
+        document.getElementById('score').textContent = this.score.toLocaleString();
+        document.getElementById('level').textContent = this.level;
+        document.getElementById('combo').textContent = `x${this.combo}`;
+      }
+
+      endGame() {
+        this.gameOver = true;
+        this.gameRunning = false;
+
+        document.getElementById('modal-title').textContent = 'Game Over';
+        document.getElementById('final-score').textContent = this.score.toLocaleString();
+        document.getElementById('final-level').textContent = this.level;
+        document.getElementById('game-over-modal').classList.add('show');
+      }
+
+      gameLoop() {
+        if (!this.gameRunning) return;
+
+        // Update
+        this.spawnCounter++;
+        const config = CONFIG[this.difficulty];
+        if (this.spawnCounter >= config.spawnRate) {
+          this.spawnOrb();
+          this.spawnCounter = 0;
+        }
+
+        this.updateChain();
+        this.updateProjectile();
+        this.updateParticles();
+
+        // Update power-up timer
+        if (this.powerUpTimer > 0) {
+          this.powerUpTimer--;
+          if (this.powerUpTimer === 0) {
+            this.activePowerUp = null;
+            document.getElementById('power-up-indicator').classList.remove('active');
+          }
+        }
+
+        // Update combo timer
+        if (this.comboTimer > 0) {
+          this.comboTimer--;
+          if (this.comboTimer === 0 && this.combo > 1) {
+            this.combo = 1;
+            this.updateUI();
+          }
+        }
+
+        // Draw
+        this.draw();
+
+        requestAnimationFrame(() => this.gameLoop());
+      }
+
+      draw() {
+        // Clear canvas
+        this.ctx.fillStyle = 'rgba(15, 15, 35, 1)';
+        this.ctx.fillRect(0, 0, this.width, this.height);
+
+        // Draw background pattern
+        this.drawBackground();
+
+        // Draw path
+        this.drawPath();
+
+        // Draw end point (skull)
+        this.drawEndPoint();
+
+        // Draw chain
+        this.drawChain();
+
+        // Draw projectile
+        if (this.projectile) {
+          if (this.projectile.powerUp) {
+            this.drawPowerUpOrb(this.ctx, this.projectile.x, this.projectile.y, this.orbRadius, this.projectile.powerUp);
+          } else {
+            this.drawOrb(this.ctx, this.projectile.x, this.projectile.y, this.orbRadius, this.projectile.colorIndex);
+          }
+        }
+
+        // Draw shooter
+        this.drawShooter();
+
+        // Draw particles
+        this.drawParticles();
+      }
+
+      drawBackground() {
+        // Subtle grid pattern
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+        this.ctx.lineWidth = 1;
+
+        for (let x = 0; x < this.width; x += 40) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(x, 0);
+          this.ctx.lineTo(x, this.height);
+          this.ctx.stroke();
+        }
+
+        for (let y = 0; y < this.height; y += 40) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(0, y);
+          this.ctx.lineTo(this.width, y);
+          this.ctx.stroke();
+        }
+      }
+
+      drawPath() {
+        // Draw glowing path
+        this.ctx.strokeStyle = 'rgba(233, 69, 96, 0.15)';
+        this.ctx.lineWidth = this.orbRadius * 2.5;
+        this.ctx.lineCap = 'round';
+        this.ctx.lineJoin = 'round';
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.path[0].x, this.path[0].y);
+
+        for (let i = 1; i < this.path.length; i++) {
+          this.ctx.lineTo(this.path[i].x, this.path[i].y);
+        }
+
+        this.ctx.stroke();
+
+        // Inner path line
+        this.ctx.strokeStyle = 'rgba(233, 69, 96, 0.08)';
+        this.ctx.lineWidth = this.orbRadius * 2;
+        this.ctx.stroke();
+      }
+
+      drawEndPoint() {
+        const endPoint = this.path[this.path.length - 1];
+
+        // Glow effect
+        const gradient = this.ctx.createRadialGradient(
+          endPoint.x, endPoint.y, 0,
+          endPoint.x, endPoint.y, 40
+        );
+        gradient.addColorStop(0, 'rgba(255, 0, 0, 0.3)');
+        gradient.addColorStop(1, 'rgba(255, 0, 0, 0)');
+
+        this.ctx.fillStyle = gradient;
+        this.ctx.beginPath();
+        this.ctx.arc(endPoint.x, endPoint.y, 40, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Draw skull symbol
+        this.ctx.font = '30px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText('💀', endPoint.x, endPoint.y);
+      }
+
+      drawChain() {
+        for (const orb of this.chain) {
+          const point = this.getPathPoint(orb.pathIndex);
+          if (!point) continue;
+
+          if (orb.powerUp) {
+            this.drawPowerUpOrb(this.ctx, point.x, point.y, this.orbRadius, orb.powerUp);
+          } else {
+            this.drawOrb(this.ctx, point.x, point.y, this.orbRadius, orb.colorIndex);
+          }
+        }
+      }
+
+      drawOrb(ctx, x, y, radius, colorIndex) {
+        const color = ORB_COLORS[colorIndex] || ORB_COLORS[0];
+
+        // Glow effect
+        const glowGradient = ctx.createRadialGradient(x, y, radius * 0.5, x, y, radius * 1.5);
+        glowGradient.addColorStop(0, color.glow + '40');
+        glowGradient.addColorStop(1, 'transparent');
+
+        ctx.fillStyle = glowGradient;
+        ctx.beginPath();
+        ctx.arc(x, y, radius * 1.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Main orb gradient
+        const gradient = ctx.createRadialGradient(
+          x - radius * 0.3, y - radius * 0.3, 0,
+          x, y, radius
+        );
+        gradient.addColorStop(0, color.glow);
+        gradient.addColorStop(0.7, color.main);
+        gradient.addColorStop(1, color.main + 'cc');
+
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Highlight
+        const highlightGradient = ctx.createRadialGradient(
+          x - radius * 0.4, y - radius * 0.4, 0,
+          x - radius * 0.3, y - radius * 0.3, radius * 0.4
+        );
+        highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+        highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+        ctx.fillStyle = highlightGradient;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Outline
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      drawPowerUpOrb(ctx, x, y, radius, type) {
+        const powerUp = POWER_UPS[type];
+
+        // Pulsing glow
+        const pulse = Math.sin(Date.now() / 200) * 0.2 + 0.8;
+
+        const glowGradient = ctx.createRadialGradient(x, y, 0, x, y, radius * 2);
+        glowGradient.addColorStop(0, powerUp.color + '80');
+        glowGradient.addColorStop(1, 'transparent');
+
+        ctx.fillStyle = glowGradient;
+        ctx.beginPath();
+        ctx.arc(x, y, radius * 2 * pulse, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Orb body
+        const gradient = ctx.createRadialGradient(
+          x - radius * 0.3, y - radius * 0.3, 0,
+          x, y, radius
+        );
+        gradient.addColorStop(0, '#ffffff');
+        gradient.addColorStop(0.5, powerUp.color);
+        gradient.addColorStop(1, powerUp.color + 'cc');
+
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Symbol
+        ctx.font = `${radius}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(powerUp.symbol, x, y);
+
+        // Outline
+        ctx.strokeStyle = powerUp.color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      drawShooter() {
+        const { x, y } = this.shooterPos;
+
+        // Outer glow ring
+        const outerGlow = this.ctx.createRadialGradient(x, y, 30, x, y, 50);
+        outerGlow.addColorStop(0, 'rgba(233, 69, 96, 0.2)');
+        outerGlow.addColorStop(1, 'transparent');
+
+        this.ctx.fillStyle = outerGlow;
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, 50, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Base circle
+        const baseGradient = this.ctx.createRadialGradient(x, y, 0, x, y, 35);
+        baseGradient.addColorStop(0, '#2a2a4a');
+        baseGradient.addColorStop(1, '#1a1a2e');
+
+        this.ctx.fillStyle = baseGradient;
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, 35, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.strokeStyle = '#e94560';
+        this.ctx.lineWidth = 3;
+        this.ctx.stroke();
+
+        // Draw aiming line
+        const aimLength = 60;
+        const endX = x + Math.cos(this.shooterAngle) * aimLength;
+        const endY = y + Math.sin(this.shooterAngle) * aimLength;
+
+        const aimGradient = this.ctx.createLinearGradient(x, y, endX, endY);
+        aimGradient.addColorStop(0, 'rgba(233, 69, 96, 0.8)');
+        aimGradient.addColorStop(1, 'rgba(233, 69, 96, 0)');
+
+        this.ctx.strokeStyle = aimGradient;
+        this.ctx.lineWidth = 3;
+        this.ctx.beginPath();
+        this.ctx.moveTo(x, y);
+        this.ctx.lineTo(endX, endY);
+        this.ctx.stroke();
+
+        // Draw current orb
+        if (this.currentOrb) {
+          if (this.currentOrb.powerUp) {
+            this.drawPowerUpOrb(this.ctx, x, y, this.orbRadius * 0.8, this.currentOrb.powerUp);
+          } else {
+            this.drawOrb(this.ctx, x, y, this.orbRadius * 0.8, this.currentOrb.colorIndex);
+          }
+        }
+
+        // Swap hint text
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        this.ctx.font = '10px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('SWAP', x, y + 50);
+      }
+
+      drawParticles() {
+        for (const p of this.particles) {
+          this.ctx.globalAlpha = p.alpha;
+          this.ctx.fillStyle = p.color;
+          this.ctx.beginPath();
+          this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          this.ctx.fill();
+        }
+        this.ctx.globalAlpha = 1;
+      }
+
+      drawStartScreen() {
+        this.ctx.fillStyle = 'rgba(15, 15, 35, 1)';
+        this.ctx.fillRect(0, 0, this.width, this.height);
+
+        this.drawBackground();
+        this.drawPath();
+        this.drawEndPoint();
+
+        // Draw sample orbs on path
+        for (let i = 0; i < 15; i++) {
+          const pathIndex = i * 20;
+          if (pathIndex < this.path.length) {
+            const point = this.path[pathIndex];
+            this.drawOrb(this.ctx, point.x, point.y, this.orbRadius, i % 4);
+          }
+        }
+
+        // Draw shooter
+        this.drawShooter();
+      }
+    }
+
+    // Initialize game
+    const game = new OrbBlasterGame();
+  </script>
+</body>
+</html>
