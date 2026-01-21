@@ -151,8 +151,7 @@ onMounted(() => {
 .game-container {
   position: relative;
   width: 100%;
-  aspect-ratio: 4/3;
-  max-width: 900px;
+  max-width: 960px;
   margin: 0 auto var(--spacing-xl);
   background: var(--color-bg-glass);
   border: 1px solid var(--color-border);
@@ -230,10 +229,6 @@ onMounted(() => {
 @media (max-width: 768px) {
   .game-title {
     font-size: var(--font-size-3xl);
-  }
-
-  .game-container {
-    aspect-ratio: 4/3;
   }
 
   .game-controls {

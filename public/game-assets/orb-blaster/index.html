@@ -142,15 +142,28 @@
       box-shadow: 0 8px 20px rgba(233, 69, 96, 0.4);
     }
 
-    .difficulty-selector {
+    .settings-row {
       display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
       justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
       margin-bottom: 10px;
     }
 
-    .difficulty-btn {
+    .difficulty-selector, .ratio-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .selector-label {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.6);
+      text-transform: uppercase;
+    }
+
+    .difficulty-btn, .ratio-btn {
       padding: 8px 16px;
       border: 2px solid #e94560;
       background: transparent;
@@ -162,7 +175,8 @@
       font-size: 0.8rem;
     }
 
-    .difficulty-btn:hover, .difficulty-btn.active {
+    .difficulty-btn:hover, .difficulty-btn.active,
+    .ratio-btn:hover, .ratio-btn.active {
       background: #e94560;
       color: white;
     }
@@ -278,10 +292,18 @@
   <div class="game-container">
     <header>
       <h1>Orb Blaster</h1>
-      <div class="difficulty-selector">
-        <button class="difficulty-btn active" data-difficulty="easy">Easy</button>
-        <button class="difficulty-btn" data-difficulty="medium">Medium</button>
-        <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+      <div class="settings-row">
+        <div class="difficulty-selector">
+          <span class="selector-label">Difficulty:</span>
+          <button class="difficulty-btn active" data-difficulty="easy">Easy</button>
+          <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+          <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+        </div>
+        <div class="ratio-selector">
+          <span class="selector-label">Screen:</span>
+          <button class="ratio-btn active" data-ratio="4:3">4:3</button>
+          <button class="ratio-btn" data-ratio="16:9">16:9</button>
+        </div>
       </div>
     </header>
 
@@ -364,6 +386,7 @@
         this.nextOrbCanvas = document.getElementById('next-orb-canvas');
         this.nextOrbCtx = this.nextOrbCanvas.getContext('2d');
 
+        this.aspectRatio = '4:3';
         this.width = this.canvas.width;
         this.height = this.canvas.height;
         this.orbRadius = 18;
@@ -414,6 +437,15 @@
           });
         });
 
+        // Aspect ratio buttons
+        document.querySelectorAll('.ratio-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            this.setAspectRatio(e.target.dataset.ratio);
+          });
+        });
+
         // Start button
         document.getElementById('start-btn').addEventListener('click', () => this.startGame());
         document.getElementById('play-again-btn').addEventListener('click', () => this.restartGame());
@@ -453,10 +485,33 @@
 
       handleResize() {
         const container = this.canvas.parentElement;
-        const maxWidth = Math.min(800, container.clientWidth);
-        const scale = maxWidth / 800;
+        const maxWidth = Math.min(this.width, container.clientWidth);
+        const scale = maxWidth / this.width;
         this.canvas.style.width = `${maxWidth}px`;
-        this.canvas.style.height = `${600 * scale}px`;
+        this.canvas.style.height = `${this.height * scale}px`;
+      }
+
+      setAspectRatio(ratio) {
+        this.aspectRatio = ratio;
+
+        if (ratio === '4:3') {
+          this.canvas.width = 800;
+          this.canvas.height = 600;
+        } else if (ratio === '16:9') {
+          this.canvas.width = 960;
+          this.canvas.height = 540;
+        }
+
+        this.width = this.canvas.width;
+        this.height = this.canvas.height;
+        this.shooterPos = { x: this.width / 2, y: this.height / 2 };
+
+        this.generatePath();
+        this.handleResize();
+
+        if (!this.gameRunning) {
+          this.drawStartScreen();
+        }
       }
 
       generatePath() {
@@ -465,10 +520,11 @@
         const centerX = this.width / 2;
         const centerY = this.height / 2;
 
-        // Spiral parameters - larger for bigger canvas
-        const startRadius = 270;
-        const endRadius = 65;
-        const turns = 2.8;
+        // Spiral parameters - scale based on canvas size
+        const minDimension = Math.min(this.width, this.height);
+        const startRadius = minDimension * 0.42;
+        const endRadius = minDimension * 0.11;
+        const turns = this.aspectRatio === '16:9' ? 2.5 : 2.8;
         const points = 500;
 
         for (let i = 0; i < points; i++) {
@@ -569,7 +625,7 @@
         while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
 
         // Lerp factor (lower = slower rotation)
-        const lerpSpeed = 0.12;
+        const lerpSpeed = 0.05;
         this.shooterAngle += angleDiff * lerpSpeed;
       }
 
