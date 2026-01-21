@@ -38,10 +38,18 @@
 <script setup>
 useSeoMeta({
   title: 'Games - meskipun.win',
-  description: 'Play free HTML5 games including Solitaire, Mahjong, and SuperTux. No downloads required.',
+  description: 'Play free HTML5 games including Orb Blaster, Solitaire, Mahjong, Snake, and more. No downloads required.',
 })
 
 const games = [
+  {
+    icon: '🔮',
+    title: 'Orb Blaster',
+    description: 'Match 3+ colored orbs to clear them before they reach the skull! A fun marble shooter puzzle.',
+    link: '/games/orb-blaster',
+    tags: ['Puzzle', 'Shooter', 'Match-3'],
+    bgGradient: 'linear-gradient(135deg, #e94560, #ff6b6b)'
+  },
   {
     icon: '🧩',
     title: 'Sudoku',
