@@ -305,7 +305,7 @@
     </div>
 
     <div class="canvas-container">
-      <canvas id="game-canvas" width="700" height="500"></canvas>
+      <canvas id="game-canvas" width="800" height="600"></canvas>
       <div class="power-up-indicator" id="power-up-indicator"></div>
       <div class="game-overlay" id="start-overlay">
         <h2>Orb Blaster</h2>
@@ -378,6 +378,7 @@
         this.chain = [];
         this.projectile = null;
         this.shooterAngle = 0;
+        this.targetAngle = 0;
         this.currentOrb = null;
         this.nextOrb = null;
 
@@ -452,10 +453,10 @@
 
       handleResize() {
         const container = this.canvas.parentElement;
-        const maxWidth = Math.min(700, container.clientWidth);
-        const scale = maxWidth / 700;
+        const maxWidth = Math.min(800, container.clientWidth);
+        const scale = maxWidth / 800;
         this.canvas.style.width = `${maxWidth}px`;
-        this.canvas.style.height = `${500 * scale}px`;
+        this.canvas.style.height = `${600 * scale}px`;
       }
 
       generatePath() {
@@ -464,11 +465,11 @@
         const centerX = this.width / 2;
         const centerY = this.height / 2;
 
-        // Spiral parameters
-        const startRadius = 220;
-        const endRadius = 60;
-        const turns = 2.5;
-        const points = 400;
+        // Spiral parameters - larger for bigger canvas
+        const startRadius = 270;
+        const endRadius = 65;
+        const turns = 2.8;
+        const points = 500;
 
         for (let i = 0; i < points; i++) {
           const t = i / points;
@@ -551,10 +552,25 @@
         const mouseX = (e.clientX - rect.left) * scaleX;
         const mouseY = (e.clientY - rect.top) * scaleY;
 
-        this.shooterAngle = Math.atan2(
+        this.targetAngle = Math.atan2(
           mouseY - this.shooterPos.y,
           mouseX - this.shooterPos.x
         );
+      }
+
+      updateShooterRotation() {
+        if (this.targetAngle === undefined) return;
+
+        // Smooth rotation with lerp
+        let angleDiff = this.targetAngle - this.shooterAngle;
+
+        // Normalize angle difference to [-PI, PI]
+        while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+        while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+
+        // Lerp factor (lower = slower rotation)
+        const lerpSpeed = 0.12;
+        this.shooterAngle += angleDiff * lerpSpeed;
       }
 
       handleShoot(e) {
@@ -904,6 +920,7 @@
         this.updateChain();
         this.updateProjectile();
         this.updateParticles();
+        this.updateShooterRotation();
 
         // Update power-up timer
         if (this.powerUpTimer > 0) {

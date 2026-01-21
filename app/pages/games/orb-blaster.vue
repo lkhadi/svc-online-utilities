@@ -151,8 +151,8 @@ onMounted(() => {
 .game-container {
   position: relative;
   width: 100%;
-  aspect-ratio: 7/5;
-  max-width: 800px;
+  aspect-ratio: 4/3;
+  max-width: 900px;
   margin: 0 auto var(--spacing-xl);
   background: var(--color-bg-glass);
   border: 1px solid var(--color-border);
@@ -233,7 +233,7 @@ onMounted(() => {
   }
 
   .game-container {
-    aspect-ratio: 7/5;
+    aspect-ratio: 4/3;
   }
 
   .game-controls {
