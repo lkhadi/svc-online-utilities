@@ -226,6 +226,7 @@
       const GATE_SPEED = 3;
       const GATE_SPAWN_INTERVAL = 1800;
       const BIRD_SIZE = 36;
+      const FIXED_DT = 1000 / 60;
 
       const GameState = {
         READY: 'ready',
@@ -243,6 +244,7 @@
         highScore: parseInt(localStorage.getItem('cloudHopperBest')) || 0,
         gameState: GameState.READY,
         lastGateSpawn: 0,
+        lastTimestamp: 0,
         animationId: null,
         clouds: [],
         inputHandlers: [],
@@ -440,29 +442,34 @@
         state.gates.push({ x: BASE_WIDTH, gapY, scored: false });
       }
 
-      function updateGame() {
+      function updateGame(timestamp) {
         if (state.gameState !== GameState.PLAYING) return;
 
+        if (!state.lastTimestamp) state.lastTimestamp = timestamp;
+        let deltaTime = timestamp - state.lastTimestamp;
+        state.lastTimestamp = timestamp;
+        deltaTime = Math.min(deltaTime, 100);
+        const dt = deltaTime / FIXED_DT;
+
         const bird = state.bird;
-        bird.velocity += GRAVITY;
-        bird.y += bird.velocity;
+        bird.velocity += GRAVITY * dt;
+        bird.y += bird.velocity * dt;
 
         state.clouds.forEach(cloud => {
-          cloud.x -= cloud.speed;
+          cloud.x -= cloud.speed * dt;
           if (cloud.x + 100 < 0) {
             cloud.x = BASE_WIDTH + 50;
             cloud.y = Math.random() * (BASE_HEIGHT - 200) + 50;
           }
         });
 
-        const now = Date.now();
-        if (now - state.lastGateSpawn > GATE_SPAWN_INTERVAL) {
+        if (timestamp - state.lastGateSpawn > GATE_SPAWN_INTERVAL) {
           spawnGate();
-          state.lastGateSpawn = now;
+          state.lastGateSpawn = timestamp;
         }
 
         state.gates.forEach(gate => {
-          gate.x -= GATE_SPEED;
+          gate.x -= GATE_SPEED * dt;
 
           if (!gate.scored && gate.x + GATE_WIDTH < bird.x - BIRD_SIZE / 2) {
             gate.scored = true;
@@ -509,8 +516,8 @@
         drawBird();
       }
 
-      function gameLoop() {
-        updateGame();
+      function gameLoop(timestamp) {
+        updateGame(timestamp);
         draw();
 
         if (state.gameState === GameState.PLAYING) {
@@ -528,14 +535,15 @@
         state.gates = [];
         state.score = 0;
         state.gameState = GameState.PLAYING;
-        state.lastGateSpawn = Date.now();
+        state.lastTimestamp = 0;
+        state.lastGateSpawn = performance.now();
 
         document.getElementById('score').textContent = '0';
         document.getElementById('ready-overlay').classList.add('hidden');
         document.getElementById('gameover-overlay').classList.add('hidden');
 
         initClouds();
-        gameLoop();
+        gameLoop(performance.now());
       }
 
       function flap() {
@@ -617,8 +625,9 @@
             state.animationId = null;
           }
         } else if (!document.hidden && state.gameState === GameState.PLAYING && !state.animationId) {
-          state.lastGateSpawn = Date.now();
-          gameLoop();
+          state.lastTimestamp = 0;
+          state.lastGateSpawn = performance.now();
+          gameLoop(performance.now());
         }
       }
 
