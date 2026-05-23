@@ -1,0 +1,9 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]: "Score: 0"
+    - generic [ref=e5]: "Best: 0"
+  - generic [ref=e8]:
+    - heading "Cloud Hopper" [level=2] [ref=e9]
+    - paragraph [ref=e10]: Hop through the clouds! Tap or press Space / Enter to flap and avoid the gates.
+    - button "Play" [ref=e11] [cursor=pointer]
+    - paragraph [ref=e12]: Space / Enter / Click / Tap

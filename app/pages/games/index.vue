@@ -38,7 +38,7 @@
 <script setup>
 useSeoMeta({
   title: 'Games - meskipun.win',
-  description: 'Play free HTML5 games including Orb Blaster, Solitaire, Mahjong, Snake, and more. No downloads required.',
+  description: 'Play free HTML5 games including Armor Commander, Bomb Blitz, Galaxy Pinball, Chess, and more. No downloads required.',
 })
 
 const games = [
@@ -91,6 +91,14 @@ const games = [
     bgGradient: 'linear-gradient(135deg, #10b981, #059669)'
   },
   {
+    icon: '☁️',
+    title: 'Cloud Hopper',
+    description: 'Flap through cloud gates! Time your hops perfectly to avoid obstacles and beat your high score.',
+    link: '/games/cloud-hopper',
+    tags: ['Arcade', 'Flappy-style', 'Timing'],
+    bgGradient: 'linear-gradient(135deg, #FF9800, #FFB74D)'
+  },
+  {
     icon: '🔢',
     title: '2048',
     description: 'Combine tiles with the same number to create larger numbers and reach 2048!',
@@ -123,6 +131,7 @@ const games = [
     tags: ['Platformer', 'Adventure', 'Action'],
     bgGradient: 'linear-gradient(135deg, #1e3a8a, #3b82f6)'
   },
+
 ]
 </script>
 

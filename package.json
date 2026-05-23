@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "imports": {
+    "#app-manifest": "./node_modules/nuxt/dist/app/manifest.js",
+    "#internal/nuxt/*": "./node_modules/nuxt/dist/app/composables/*.js",
+    "#internal/*": "./node_modules/nuxt/dist/app/composables/*.js"
+  },
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
